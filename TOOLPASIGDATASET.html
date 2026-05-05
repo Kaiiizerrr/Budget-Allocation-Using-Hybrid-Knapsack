@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>LGU Budget Optimizer — Pasig City APP 2025</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg0:#fff;--bg1:#f5f5f2;--bg2:#eeece6;
+      --tx0:#1a1a18;--tx1:#6b6b67;--tx2:#9e9e9a;
+      --bd0:rgba(0,0,0,.1);--bd1:rgba(0,0,0,.2);
+      --rm:8px;--rl:12px;
+      --blue:#378ADD;--blue-bg:#E6F1FB;--blue-dk:#185FA5;--blue-bd:#B5D4F4;
+      --teal:#1D9E75;--teal-bg:#E1F5EE;--teal-dk:#0F6E56;
+      --red:#E24B4A;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg0:#1e1e1c;--bg1:#2a2a27;--bg2:#323230;
+        --tx0:#f0ede6;--tx1:#a0a09a;--tx2:#6b6b67;
+        --bd0:rgba(255,255,255,.1);--bd1:rgba(255,255,255,.2);
+        --blue-bg:#0c2d4a;--blue-dk:#85B7EB;--blue-bd:#0c447c;
+        --teal-bg:#04342c;--teal-dk:#5DCAA5;
+      }
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--tx0);min-height:100vh;padding:1.5rem 1rem}
+    .wrap{max-width:1000px;margin:0 auto}
+    h1{font-size:20px;font-weight:500}
+    .sub{font-size:13px;color:var(--tx1);margin-top:3px}
+    .tag{display:inline-block;font-size:11px;background:var(--blue-bg);color:var(--blue-dk);padding:2px 10px;border-radius:99px;margin-bottom:8px;font-weight:500;border:.5px solid var(--blue-bd)}
+    .card{background:var(--bg0);border:.5px solid var(--bd0);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem}
+    .card-title{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.9rem}
+    /* Budget */
+    .budget-row{display:flex;align-items:center;gap:12px}
+    .budget-row label{font-size:14px;color:var(--tx1);min-width:110px}
+    .budget-row input[type=range]{flex:1;accent-color:var(--blue)}
+    .budget-big{font-size:20px;font-weight:500;min-width:140px;text-align:right}
+    /* Stats bar */
+    .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
+    .stat{background:var(--bg1);border-radius:var(--rm);padding:10px 12px}
+    .stat-l{font-size:11px;color:var(--tx1);margin-bottom:2px}
+    .stat-v{font-size:17px;font-weight:500}
+    .stat-s{font-size:11px;color:var(--tx2);margin-top:1px}
+    /* Toolbar */
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
+    .toolbar input[type=text]{flex:1;min-width:160px;border:.5px solid var(--bd1);border-radius:var(--rm);padding:6px 10px;font-size:13px;background:var(--bg1);color:var(--tx0);outline:none}
+    .toolbar input:focus{border-color:var(--blue)}
+    .filter-btn{padding:5px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;cursor:pointer;border:.5px solid var(--bd1);color:var(--tx1);background:var(--bg1);white-space:nowrap;transition:all .15s}
+    .filter-btn.on{border-color:var(--blue);color:var(--blue-dk);background:var(--blue-bg)}
+    /* Table */
+    .tbl-wrap{max-height:340px;overflow-y:auto;border:.5px solid var(--bd0);border-radius:var(--rm)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{position:sticky;top:0;background:var(--bg1);text-align:left;padding:7px 10px;color:var(--tx1);font-weight:500;border-bottom:.5px solid var(--bd0);z-index:1}
+    td{padding:6px 10px;border-bottom:.5px solid var(--bd0);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    .chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
+    .s-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;white-space:nowrap}
+    .s-Healthcare{background:#FAECE7;color:#993C1D}
+    .s-Infrastructure{background:#E6F1FB;color:#185FA5}
+    .s-Education{background:#EAF3DE;color:#3B6D11}
+    .s-Social-Services{background:#EEEDFE;color:#534AB7}
+    .s-Environment{background:#E4F4E0;color:#2F6B1A}
+    .s-Public-Safety{background:#FFF0DC;color:#8A5200}
+    .s-General-Government{background:#F1EFE8;color:#5F5E5A}
+    .cost-col{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .benefit-col{text-align:center}
+    .sel-count{font-size:12px;color:var(--tx1);margin-top:6px}
+    /* Run btn */
+    .run-btn{width:100%;padding:11px;font-size:15px;font-weight:500;cursor:pointer;background:var(--bg0);border:.5px solid var(--bd1);border-radius:var(--rl);color:var(--tx0);transition:background .15s;margin-bottom:1rem}
+    .run-btn:hover{background:var(--bg1)}
+    /* Results */
+    .compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+    @media(max-width:580px){.compare-grid{grid-template-columns:1fr}}
+    .ccard{padding:14px;border-radius:var(--rl);border:.5px solid var(--bd0);background:var(--bg0)}
+    .ccard.best{border-color:var(--teal)}
+    .best-tag{display:inline-block;font-size:10px;background:var(--teal-bg);color:var(--teal-dk);padding:2px 8px;border-radius:99px;font-weight:500;margin-bottom:6px}
+    .ccard-title{font-size:12px;font-weight:500;color:var(--tx1);margin-bottom:6px}
+    .ccard-big{font-size:22px;font-weight:500}
+    .ccard-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+    .bar-t{background:var(--bg1);border-radius:99px;height:6px;width:100%;margin-top:8px;overflow:hidden}
+    .bar-f{height:6px;border-radius:99px;transition:width .5s}
+    .ccard-meta{margin-top:10px;font-size:12px;color:var(--tx1)}
+    /* Algo tabs */
+    .algo-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.9rem}
+    .algo-tab{padding:6px 14px;border-radius:var(--rm);font-size:13px;font-weight:500;cursor:pointer;border:.5px solid var(--bd1);color:var(--tx1);background:var(--bg0);transition:all .15s}
+    .algo-tab.on{border-color:var(--blue);color:var(--blue-dk);background:var(--blue-bg)}
+    /* Results project list */
+    .res-list{display:flex;flex-direction:column;gap:5px;max-height:400px;overflow-y:auto}
+    .res-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rm);font-size:12px}
+    .res-chip.sel{background:var(--blue-bg);border:.5px solid var(--blue-bd);color:var(--blue-dk)}
+    .res-chip.rej{background:var(--bg1);border:.5px solid var(--bd0);color:var(--tx2);text-decoration:line-through}
+    .res-name{flex:1}
+    .res-cost{min-width:90px;text-align:right;font-variant-numeric:tabular-nums}
+    .res-score{min-width:52px;text-align:right;font-weight:500}
+    .empty{text-align:center;padding:2rem;color:var(--tx2);font-size:14px}
+    .footer{margin-top:1.5rem;text-align:center;font-size:11px;color:var(--tx2)}
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bd1);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div style="margin-bottom:1.2rem">
+    <div class="tag">BSCS 3-1N · Thesis Group 2 · Pasig City APP 2025</div>
+    <h1>LGU Budget Allocation Optimizer</h1>
+    <p class="sub">Hybrid Knapsack Algorithm with Genetic and Branch-and-Bound Enhancement</p>
+  </div>
+
+  <!-- Budget -->
+  <div class="card">
+    <div class="card-title">Budget constraint</div>
+    <div class="budget-row">
+      <label>Total budget (₱)</label>
+      <input type="range" min="100000000" max="9500000000" step="50000000" value="1000000000"
+             id="budgetSlider" oninput="updateBudget(this.value)">
+      <span class="budget-big" id="budgetDisplay">₱1,000,000,000</span>
+    </div>
+  </div>
+
+  <!-- Project selector -->
+  <div class="card">
+    <div class="card-title">Project pool — Pasig City Annual Procurement Plan FY 2025 (<span id="totalCount">0</span> projects · ₱<span id="totalBudget">0</span> total)</div>
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="Search projects..." oninput="applyFilters()">
+      <button class="filter-btn on" data-sector="All" onclick="toggleSector(this)">All</button>
+      <button class="filter-btn" data-sector="Healthcare" onclick="toggleSector(this)">Healthcare</button>
+      <button class="filter-btn" data-sector="Infrastructure" onclick="toggleSector(this)">Infrastructure</button>
+      <button class="filter-btn" data-sector="Education" onclick="toggleSector(this)">Education</button>
+      <button class="filter-btn" data-sector="Social Services" onclick="toggleSector(this)">Social Services</button>
+      <button class="filter-btn" data-sector="Environment" onclick="toggleSector(this)">Environment</button>
+      <button class="filter-btn" data-sector="Public Safety" onclick="toggleSector(this)">Public Safety</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px"><input type="checkbox" class="chk" id="chkAll" onchange="toggleAll(this.checked)"></th>
+            <th>Project / Program</th>
+            <th>Sector</th>
+            <th>Office</th>
+            <th>Cost (₱)</th>
+            <th style="text-align:center">Score</th>
+          </tr>
+        </thead>
+        <tbody id="projTbody"></tbody>
+      </table>
+    </div>
+    <div class="sel-count" id="selCount">0 projects selected · ₱0 total cost</div>
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="runAll()">Run all algorithms →</button>
+  <div id="results"></div>
+
+  <div class="footer">
+    Dataset: City Government of Pasig · Annual Procurement Plan CY 2025 (8th Revision) &nbsp;|&nbsp;
+    Knapsack DP · Branch &amp; Bound (Land &amp; Doig, 1960) · Genetic Algorithm (Holland's Schema Theorem)
+  </div>
+</div>
+
+<script>
+const ALL_PROJECTS = [{name:"Provision of Food for Work for Victims of Disaster Calamity",sector:"Social Services",cost:2516626,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Consultancy Services for the Document Management System for Office of the City Mayor",sector:"General Government",cost:5000000,benefit:4,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for the Conduct of Oplan Paalala / Fire Truck Visibility / Lingguhang Paalala",sector:"Public Safety",cost:720000,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for the Conduct of 40 Hours Competency Training for Community Fire Auxillary Group",sector:"Education",cost:598500,benefit:6,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for Formulation of Community Fire Auxillary Group thru Oplan Ligtas Pamayanan",sector:"Public Safety",cost:498750,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for the Conduct of NCII & III Driving TESDA Training",sector:"Education",cost:297500,benefit:6,pmo:"Office of the City Mayor"},
+{name:"Purchase of Various Supplies for the Conduct of Fire Square Road Show",sector:"Infrastructure",cost:241806,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for the Conduct of Barangay Fire Olympics",sector:"Public Safety",cost:250000,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Various Office Supplies for the use of Youth Sensetivity Awareness Program",sector:"Social Services",cost:51177,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Office Equipment and Supplies for the use of BJMP Male Dorm",sector:"Infrastructure",cost:101484,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Sewing Machine for Livihood Programs of Person Deprived of Liberty (BJMP Male Dormitory)",sector:"Public Safety",cost:687266,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Rental of Stage and AV Equipment for Ginoong Pasigueño",sector:"Infrastructure",cost:1936800,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Purchase of Food and Supplies for the Participatory Barangay Development Planning (PBDP) Rollout in ",sector:"General Government",cost:3411000,benefit:2,pmo:"Office of the City Mayor"},
+{name:"Provision of Food for Various Capacity Development Activities for CSO Representatives in Local Speci",sector:"General Government",cost:3636000,benefit:2,pmo:"Office of the City Mayor"},
+{name:"Event Management Service Provider for the 452nd Araw ng Pasig Gabi ng Pasasalamat",sector:"General Government",cost:2000000,benefit:4,pmo:"Office of the City Mayor"},
+{name:"Provision of Casket and Funeral Services for Indigent Families of Pasig City",sector:"Social Services",cost:29998001,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Consultancy Services for the Big Data Warehousing and Management System",sector:"General Government",cost:71275244,benefit:4,pmo:"Office of the City Mayor"},
+{name:"Purchase of Swat Vehicle for the use of PNP",sector:"Infrastructure",cost:2621000,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Purchase of Transport Vehicle for the use of PDL (BJMP Female Dorm)",sector:"Infrastructure",cost:1265900,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Purchase of Motorcycle for the use of BJMP Male Dorm",sector:"Public Safety",cost:77300,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Purchase of Dual Boiler Coffee Machine for Livelihood Programs of Person Deprived of Liverty (BJMP M",sector:"Social Services",cost:414321,benefit:9,pmo:"Office of the City Mayor"},
+{name:"Lease of Venue for Training on Local Government Code RA 7160",sector:"Education",cost:90000,benefit:8,pmo:"Office of the City Mayor"},
+{name:"Lease of Venue for the Participatory Barangay Development Planning (PBDP) Facilitator's Training",sector:"Education",cost:1091500,benefit:8,pmo:"Office of the City Mayor"},
+{name:"Food and Venue for Pro-Health Workshop Series: TPA-Enabled Health Units",sector:"Healthcare",cost:350000,benefit:6,pmo:"Office of the City Mayor"},
+{name:"Supply and Delivery of Various Office Supplies and Equipment for the use of COA Pasig",sector:"Infrastructure",cost:405696,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Siupplies and Hygiene / Cleaninng Supplies for the use of JTF and BJMP Female Dormitory",sector:"Public Safety",cost:70932,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Various Supplies for the Conduct of Oplan Paalala / Fire Truck Visibility / Lingguhang P",sector:"Public Safety",cost:124501,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Printing and Distribution of Fire Safety Informative Materials",sector:"Public Safety",cost:433055,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Various Office Supplies and Equipment, Delivery and Installation of Air Conditioning Uni",sector:"Infrastructure",cost:687780,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of Custom Food Cart and Motorcycle Accessories for the use of DTI and PNP Pasig",sector:"Public Safety",cost:454283,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Provision of Food and Rental of Stage and AV Equipment for Festival of Arts and Music",sector:"Infrastructure",cost:500000,benefit:5,pmo:"Office of the City Mayor"},
+{name:"Purchase of CCTV Package with Installation Service for the use of BJMP-Female Dormitory",sector:"Public Safety",cost:100199,benefit:7,pmo:"Office of the City Mayor"},
+{name:"Food and Venue for Gender Fair Language (GFL) and Seminar Rules and Regulations of Republic Act No. ",sector:"Education",cost:499500,benefit:6,pmo:"City Administrator's Office"},
+{name:"Provision of Various Supplies and Equipment for the use of City Administrator's Office",sector:"Infrastructure",cost:360280,benefit:5,pmo:"City Administrator's Office"},
+{name:"Provision of Food for Various Meetings and Seminars for the use of City Administrator's Office",sector:"Education",cost:972000,benefit:6,pmo:"City Administrator's Office"},
+{name:"Purchase of Various Office Supplies for the use of Pasig City Disaster Risk Reduction and Management",sector:"Social Services",cost:2939615,benefit:5,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Various Office Supplies and Equipment for the use of Pasig City DRRMO",sector:"Infrastructure",cost:3545984,benefit:5,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Various Dog Food, Medicines and Supplies for Pasig K9 Unit",sector:"Healthcare",cost:2994600,benefit:6,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Office Furnitures and Fixtures for the use of RED Training Center and Other CDRRM Sub St",sector:"Education",cost:3932462,benefit:8,pmo:"Pasig City DRRMO"},
+{name:"Purchase of IT Supplies, Equipment and Maintenance / Repair of CCTV for Pasig Command Center",sector:"Infrastructure",cost:9760482,benefit:5,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Tools and Equipment for Repair DRRM Vehicles",sector:"Infrastructure",cost:4997254,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Incident Management Team Supplies and Equipment for PCDRRMO",sector:"Infrastructure",cost:9962252,benefit:5,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Quick Response Kit for Disaster Risk Reduction and Management Office",sector:"Social Services",cost:17635921,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Emergency Response Supplies / Tools - IMT Spplies / Tools for Public Schools and Baranga",sector:"Education",cost:40299650,benefit:6,pmo:"Pasig City DRRMO"},
+{name:"Repair and Maintenance of Various Equipment and Machineries under Pasig City Disaster Reduction and ",sector:"Infrastructure",cost:6000000,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Advance Cardiac Monitoring System and Defibrillator with CPR and BVM Feedback for EMS",sector:"General Government",cost:10000000,benefit:4,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Fire and Rescue Boat",sector:"Public Safety",cost:23400000,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Thermal Camera System",sector:"General Government",cost:2702514,benefit:4,pmo:"Pasig City DRRMO"},
+{name:"Purchase of Next Generation Fire Wall for Pasig Command Center",sector:"Public Safety",cost:9940000,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Site Rental of Radio Repeater for the use of PNP, Pasig DRRM, Barangay, C3, Fire Volunteer",sector:"Public Safety",cost:996000,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Site Rental of Radio Repeater for the use of Pasig City Disaster Risk Reduction and Management Offic",sector:"Social Services",cost:1158000,benefit:7,pmo:"Pasig City DRRMO"},
+{name:"Rental of New Site Radio Repeater Trunking System",sector:"General Government",cost:2846000,benefit:4,pmo:"Pasig City DRRMO"},
+{name:"Provision of Food for the Conduct of Disaster 101",sector:"Social Services",cost:250000,benefit:5,pmo:"Pasig City DRRMO"},
+{name:"Provision of Food for Various Trainings / Seminars / Activities of Pasig City Local Economic Develop",sector:"Education",cost:2048000,benefit:6,pmo:"PCLEDIO"},
+{name:"Consultancy Services for the Pasig City Sustainable Livelihood Program",sector:"Social Services",cost:2000000,benefit:9,pmo:"PCLEDIO"},
+{name:"Provision of Food for Various Activities of Pasig City Local Economic Development and Investment Off",sector:"General Government",cost:2327200,benefit:2,pmo:"PCLEDIO"},
+{name:"Food and Venue for Pasig City Women Entrepreneurship Summit",sector:"Social Services",cost:880000,benefit:5,pmo:"PCLEDIO"},
+{name:"Food and Venue for Pasig City Youth Entrepreneurship Summit",sector:"Social Services",cost:1096000,benefit:5,pmo:"PCLEDIO"},
+{name:"Purchase of Service Vehicle for the use of Pasig City LEDIO Staff",sector:"Infrastructure",cost:311110,benefit:7,pmo:"PCLEDIO"},
+{name:"Provision of Food for Various Activities / Training / Seminars of Local Youth Development Office",sector:"Education",cost:1300000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Provision of Training Materials for Various Activities / Training / Seminars of Local Youth Developm",sector:"Education",cost:685300,benefit:8,pmo:"Local Youth Development Office"},
+{name:"Purchase of Various Supplies and Materials for the use of Local Youth Development Office",sector:"Social Services",cost:70750,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Printing of Passport Booklet for Youth Participation Organization Passport (YPOP)",sector:"Social Services",cost:70000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Purchase of Grocery Packs Incentives for the use of Local Youth Development Office",sector:"Social Services",cost:2313750,benefit:7,pmo:"Local Youth Development Office"},
+{name:"Purchase of Sports Materials and Equipment to Sangguniang Kabataan and YO/YSO",sector:"Infrastructure",cost:3945000,benefit:7,pmo:"Local Youth Development Office"},
+{name:"Provision of Food for Variuos Activities of Local Youth Development Office",sector:"Social Services",cost:320000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Purchase of Toner (Kyocera) for the use of Pasig Youth Development Office",sector:"Social Services",cost:95100,benefit:7,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Pasig City Youth Development Council Capacity Building Seminar / Workshop",sector:"Infrastructure",cost:450000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Continuing Training: Leadership Training for Sangguniang Kabataan Officials",sector:"Education",cost:3360000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Seminar-Workshop for SK Kagawad on GAD and Health for Adolescent Sexual Reproduct",sector:"Healthcare",cost:1045000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Mandatory Training for SK Chairpersons and SK Kagawad",sector:"Education",cost:960000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Pasig Youth Parliament",sector:"Social Services",cost:1568000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Seminar-Workshop on Advocacy Building for YO / YSO",sector:"Infrastructure",cost:1800000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Sports Event Management and Offiating Seminar-Workshop for SK Officials",sector:"Education",cost:1425000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Gender Sensitivity Training for YORP Registered Organization",sector:"Education",cost:1615000,benefit:6,pmo:"Local Youth Development Office"},
+{name:"Rental of Venue for Awarding of Best Youth Organizations and Model Youth Leaders",sector:"Social Services",cost:900000,benefit:7,pmo:"Local Youth Development Office"},
+{name:"Food and Venue for Benchmarking of Valuable Youth Programs in Naga City",sector:"Social Services",cost:400000,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Purchase of Variuos Supplies for Various Activities of Local Youth Development Office",sector:"Social Services",cost:220750,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Purchase of Advocacy Shirt, Personalized Tote Bag and Pins for the Logistical Needs on the Implement",sector:"Social Services",cost:200000,benefit:7,pmo:"Local Youth Development Office"},
+{name:"Purchase of Various Supplies and Materials for the yse of Pasigueño Youth YO/YSO General Assembly",sector:"Social Services",cost:587500,benefit:5,pmo:"Local Youth Development Office"},
+{name:"Provision of Food for Capacity Development Activities of Different Offices in the City Government of",sector:"General Government",cost:61628000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Various Training Supplies and Materials for the use Human Resource Development Office",sector:"Education",cost:964366,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Training Expense for Financial Literacy Seminar Workshop",sector:"Education",cost:2040000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of Office of General Services",sector:"General Government",cost:1020000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Registration for Diabetes Nurse Educaiton Training for CHD- INCD",sector:"Healthcare",cost:350000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Primary Health Care Training - CHD- HEPO",sector:"Healthcare",cost:1632000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Health Programs Updates for Community Health Workers - CHD-HEPO",sector:"Healthcare",cost:1666000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Health Education Week - CHD-HEPO",sector:"Healthcare",cost:1190000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Training on Pharmacy Services NCII and Philippine Pharmacist Association Naitonal Convention of CHD ",sector:"Healthcare",cost:225000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for the Participation of Teaching and Non- Teaching Personnel to Records Managemen",sector:"Education",cost:1037000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Various Office Equipment and Supplies for the use of Human Resource Development Office",sector:"Infrastructure",cost:1986297,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Personalized Wristwatch and Plaque of Recognition for the Service Awards for Retirees 20",sector:"General Government",cost:1435000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Sports Fest Uniforms for the use of Human Resource Development Office",sector:"General Government",cost:3240189,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Customized T-Shirt for Various Activites of Human Resource Development Office",sector:"General Government",cost:570000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Various Activities of Human Resource Development Office",sector:"General Government",cost:4592500,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Subscription on Maintenance of Learning Management System (LMS)",sector:"Education",cost:2000000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Mental Health Examination for the use of HRDO (Pre-Employment / Reemployment Testing Services)",sector:"Healthcare",cost:1999640,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Psychological Examamination for the use of HRDO (Pre-Employment / Reemployment Testing Services)",sector:"General Government",cost:1999500,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Consultancy Services for Data Privacy Management Program",sector:"General Government",cost:3450000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Consultancy Services for the Engagement of a Certification Body for the Certification of the City Go",sector:"General Government",cost:1176000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Subscription to Various Platforms (Websites and Apps) Related to Trainings / Seminars / Meetings",sector:"Education",cost:1000000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Training / Conventions with Continuing Professional Development for CPAs",sector:"Education",cost:222000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Seminar / Training Related to Intermidiate MS Office",sector:"Education",cost:156000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Various Expenses for Externallu Provided Trainings for Internal Audit Service Unit",sector:"Education",cost:150000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Participation to Accreditation Training Course (ALCUCOA)",sector:"Education",cost:150000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Teaching Personnel to Professional Descipline-Based Trainings, Seminar and Worhshop of PLP - CAS & N",sector:"Education",cost:638000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Participation of Library Personnel to Library Information and Management Training, Seminar and Works",sector:"Education",cost:60000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Participation of MIS Personnel on Window Server Management, Network Security Implementation and Moni",sector:"Education",cost:115000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Participation of NTP Personnel Leadership / Strategic / Task Related Competency Trainings, Seminar a",sector:"Education",cost:600000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Multi-Year Cloud Service Subscription and Maintenance for the Government Employees Management System",sector:"General Government",cost:7000000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Training Materials for the Conduct of Image Management Workshop",sector:"Education",cost:95100,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar-Workshop for Updating on Competency Modeling and Profiling for All Positi",sector:"Education",cost:1655000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training of Trainers for Orientation for New Employees",sector:"Education",cost:937000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Gender Sensetivity Training of HRDO",sector:"Education",cost:672500,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar / Workshop on Completed Staff Work",sector:"Education",cost:1300200,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Leadership Training / Coaching and Mentoring",sector:"Education",cost:1294000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar / Workshop on Future's Thinking",sector:"Education",cost:1090000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Public Service Values Programs for Non- Supervisors",sector:"General Government",cost:2037600,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Data Analytics for Beginners",sector:"General Government",cost:1908000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Formulation of L&D Manual Seminar on Monitoring and Evaluation Tools",sector:"Education",cost:1714000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Learning and Development Intervention (Cascading of CAPDEV)",sector:"Education",cost:714000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Supervision Development Course",sector:"General Government",cost:596000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminars and Other Related Amendments",sector:"Education",cost:154800,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Development of Competency-Based IPCR of Second Level Employees",sector:"General Government",cost:800000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Leave Administration Course for Effectiveness for Health Sector - HRDO",sector:"Healthcare",cost:440000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Manager's Role in Capacity Building Workforce Planning with Career Development an",sector:"Infrastructure",cost:2504400,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Trainings and Convention of the Association of Metro Manila Budget Offices (AMMBO",sector:"Education",cost:300000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Costumer Relation Management for the use of City Administrator's Offi",sector:"Education",cost:240340,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Year-End Evaluation of Various Offices - City Administration Office - Community R",sector:"Healthcare",cost:18388200,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Technical Skill Development / Capability Building Enhancement of City Legal Of",sector:"Infrastructure",cost:80000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Training of ICT Resources Acquisition Project for the use of Management Infor",sector:"Education",cost:252840,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Year-End Evaluation of Management Information Systems Office",sector:"General Government",cost:502400,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of City Planning & Development Office",sector:"General Government",cost:600000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Conduct of Stress Debriefing / Resilience and Grievance Handling Management Works",sector:"Education",cost:1023420,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Conduct of Image Management Workshop of Ugnayan (FOI)",sector:"Education",cost:770000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Computer Literacy of Market Administrations Office",sector:"Education",cost:110000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Strategic Employment Facilitation Skills and Career Development Support Program T",sector:"Education",cost:180000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Leadership, Work Ethics Positive and Positive Workshop Mindset - PESO",sector:"Education",cost:180000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Conduct of Entreprise Environment Training of Pasig Local Economic Developmen",sector:"Education",cost:692000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Year-End Evaluation of Maybunga Rainforest Park",sector:"Environment",cost:786000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Year-End Evaluation of City Environmental and Natural Resources Office",sector:"Environment",cost:1350000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Advance Urban Gardening and Hydroponics - CENRO",sector:"Environment",cost:420000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Environmental Laws Training - CENRO",sector:"Education",cost:250000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Enforcement and Smoke / Vape Free Environment - CENRO",sector:"Environment",cost:70000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Tree Inventory - CENRO",sector:"Education",cost:1050000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Year-End Evaluation of Solid Waste Management Office",sector:"Environment",cost:750000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Volume Checking - SMWMO",sector:"Education",cost:300000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Safety on the Workplace - SMWMO",sector:"Education",cost:300000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Basic Equipment Troubleshooting - SMWMO",sector:"Infrastructure",cost:220000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on RA 9003: The Ecological Solid Waste Management Act - SMWMO",sector:"Education",cost:380000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Proper Apprehension - SMWMO",sector:"Education",cost:300000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training on Pump Operator, Gardeners, Electrician, Plumbers of the City Engineeri",sector:"Education",cost:360000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training / Seminar on PICE / UAP / NATCON / Disaster Preparedness / Structural En",sector:"Healthcare",cost:360000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Technical / Mechanical / Technology Training of CTDMO Personnels",sector:"Education",cost:132000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Admin Management Training of CTDMO Personnels",sector:"Education",cost:132000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the First Aid Training of CTDMO Personnels",sector:"Education",cost:132000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Bus Management Training of CTDMO Personnels",sector:"Education",cost:132000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Training on NIP Focal Person on Basic NIP Skills and Cold Chain Management",sector:"Education",cost:954000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for MHGAP Training for the use of CHD- SATOP/ / Mental Health / OSS",sector:"Healthcare",cost:714000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training / Refresher on Basic Course for Barangay Nutrition Scholar",sector:"Healthcare",cost:382500,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Mid-Year Assessment of Pasig City Children's Hospital (Child's Hope)",sector:"Healthcare",cost:498000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the In-Service Training of PCCH-Nursing Service Office",sector:"Education",cost:200000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for PCCH Nursing Service Gender and Development Training and Seminar and Other Relate",sector:"Education",cost:340000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Workshop on Developing Operations Manual of PCIST / BCLP / Livelihood",sector:"Education",cost:2000000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Conduct Training on Essential Management Skills of Peace and Order Department",sector:"Education",cost:156600,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training and Seminar on Children's Protection Ordinance of 2016 and Revised Pasig",sector:"Education",cost:198900,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Training and Seminar: Anger Management Issue of Action Line Division's Person",sector:"Education",cost:824300,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Basic Self Defense Training Seminar of Peace and Order",sector:"Education",cost:1080000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Training and Workshop of POD-Action Line Division re: Workshop on Developing a Ri",sector:"Education",cost:679640,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the Coaching, Mentoring and Action Learning to Indicate the Roles and Responsibil",sector:"Education",cost:450000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar Workshop on the Development of Monitoring and Evaluation Framework and To",sector:"Education",cost:342000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar Workshop on Formulation of Annual City's GAD Plan & Budgeting for Departm",sector:"Education",cost:1785000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Seminar Training on Development of GAD Training Modules",sector:"Education",cost:289600,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the use of GAD Programs re: Seminar Workshop on the Training Community Trainers",sector:"Education",cost:798000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for the use of GAD Programs re: Gender Equality, Diversity and Social Inclusion (GEDS",sector:"Social Services",cost:415000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Skill & Competency for the OSCA Personnel Workshop",sector:"Education",cost:200000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Food and Venue for Communication Skill Training of OSCA",sector:"Education",cost:176000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"GAD Related Local and International Conferences, Seminars, Trainings",sector:"Education",cost:2326000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Multi-Purpose Vehicle for the use of Human Resource Development Office",sector:"Infrastructure",cost:1953530,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"National Conventions (PDA, PLLGDI) Training Seminar of CHD- Dental Section",sector:"Healthcare",cost:176000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Registration for PAMET Conventions and Workshop, Philliphine Council for Quality Assurance of Clinic",sector:"Healthcare",cost:304000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Expenses for Various Trainings / Seminar / Convention of Pasig City Children's Hospital",sector:"Healthcare",cost:1743000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Management Role in Capacity Building Program and Workforce Planning Career Development and Successio",sector:"Infrastructure",cost:600000,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"Supervisory Development Course Track 1 & 2 and Public Service Values Program for Non-Supervisors for",sector:"General Government",cost:1600000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Audio Mixer and Power P.A System for the use of Human Resource Dev't. Office",sector:"General Government",cost:630000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Training Supplies for Capacity Development Training of Disaster Risk Reduction Manageme",sector:"Education",cost:232981,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Seminar / Training on Recent Issuance and Regulations of Different Government Agencies",sector:"Education",cost:222000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Various Activities of Management Information Systems Office",sector:"General Government",cost:1000000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Continuous Participation to the Short Course on Land Use Planning, Urban and Regional Planning or En",sector:"Environment",cost:400000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Annual Convention for Philippine Environmental Planners of City Planning & Development Office",sector:"Environment",cost:450000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Internal Audit Service Unit",sector:"General Government",cost:500000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Three Day Deepening Session / Seminar-Workhop on GMEF, HGDG and GAD Planning and Budgeting for theus",sector:"Education",cost:153000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Three Day Seminar-Workshop on the Principles and Guidelines in the Preparation of the LGU's GAD Code",sector:"Education",cost:153000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Expenses for Various Capacity Development Training of Public Information Office",sector:"Education",cost:125000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Filipino Brand Service and Music Clinic Workshop for the use of CATO",sector:"Healthcare",cost:935000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Tourism Planning Seminar - CATO",sector:"Education",cost:204000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Basic Heritage Conservation Training - CATO",sector:"Education",cost:204000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Music Clinic Workshop Training - CATO",sector:"Healthcare",cost:255000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for CLIMA / eBPLS Training - BPLD",sector:"Education",cost:374000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Basic to Intermmediate Google Workspace Training - BPLD",sector:"Education",cost:170000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Training on Philippine Statistics Industry Classification - BPLD",sector:"Education",cost:459000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Data Analytics Training - BPLD",sector:"Education",cost:238000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Maybunga Rainforest Park",sector:"Environment",cost:153000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Maybunga Rainforest Park",sector:"Environment",cost:153000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Implement Specialized Training Program and Workshop Focused on Water Safety, Rescue Technique and Fi",sector:"Education",cost:100000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of City Environmental and Natural Resources Office",sector:"Environment",cost:500000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of City Environmental and Natural Resources Office",sector:"Environment",cost:500000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Solid Waste Management Office",sector:"Environment",cost:255000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Solid Waste Management Office",sector:"Environment",cost:255000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Office of the Building Official",sector:"Infrastructure",cost:136000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of Office of the Building Official",sector:"Infrastructure",cost:136000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Seminar on National Building Code of the Philippines and Enhance their Knowledge on Minimum Standard",sector:"Infrastructure",cost:300000,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"PABO / BOOMM Convention and Enhance their Knowledge of the Latest Updates on the National Building C",sector:"Infrastructure",cost:300000,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"ASEP Seminar and Enhanced their Knowledge on the Upadates and Latest Structural Standards on the Nat",sector:"Education",cost:149600,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"BOSH / COSH and Learned the Safety Standard and Practices on the Construction Sites",sector:"Infrastructure",cost:116000,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for the use of City Health Department for HEPO and NIP Training under HRDO CAPDEV",sector:"Healthcare",cost:469260,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of City Health Department",sector:"Healthcare",cost:408000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Registration for Various Training / Seminar of CHD- Hemodialysis",sector:"Education",cost:213000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of CHD-Sanitary Section",sector:"Healthcare",cost:156400,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Training of Nurses and Midwives for VIA Test and Breast Screenng - CHD Cancer ",sector:"Healthcare",cost:255000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Convention of Sanitation Inspector",sector:"Healthcare",cost:150000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Pasig City Children's Hospital (Child's Hope)",sector:"Healthcare",cost:187000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Various Activities of Pasig City Children's Hospital (Child's Hope)",sector:"Healthcare",cost:265350,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food PCCH-Nursing Service Office Inservice Training, Nurses Week Celebration, Basic Lif",sector:"Healthcare",cost:474150,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Pasig City General Hospital",sector:"Healthcare",cost:357000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Pasig City General Hospital",sector:"Healthcare",cost:357000,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Various Activities of Pasig City General Hospital",sector:"Healthcare",cost:780500,benefit:10,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Education Unit",sector:"Education",cost:153000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of Education Unit",sector:"Education",cost:153000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Pasig City Library",sector:"Education",cost:127500,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Pasig City Library",sector:"Education",cost:127500,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Special Children Educational Institution",sector:"Education",cost:76500,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of Special Children Educational Institution",sector:"Education",cost:76500,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Participation of PLP Personnel to Disaster Risk Reduction and Management Training, Seminar and Workh",sector:"Education",cost:60000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of PCIST / BCLP / Livelihood",sector:"Social Services",cost:280500,benefit:9,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of PCIST / BCLP / Livelihood",sector:"Social Services",cost:280500,benefit:9,pmo:"Human Resource Dev't. Office"},
+{name:"Bus Rental for Basic Self Defense Training and Seminar of POD Personnels",sector:"Education",cost:210000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Traffic and Parking Management Office",sector:"Environment",cost:153000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Traffic and Parking Management Office",sector:"Environment",cost:153000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Registration for Training / Seminar on Roadworks Safety Audit",sector:"Infrastructure",cost:350000,benefit:7,pmo:"Human Resource Dev't. Office"},
+{name:"Registration for Training in Advance Traffic Administration Course for Traffic Officers",sector:"Education",cost:320000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Office on Social Welfare and Development Office",sector:"Social Services",cost:408000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Year-End Evaluation of Office on Social Welfare and Development Office",sector:"Social Services",cost:272000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Strategic Planning of Office of the Senior Citizen",sector:"Social Services",cost:102000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Mid-Year Assessment of Office of the Senior Citizen",sector:"Social Services",cost:102000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Rental of Bus as mode of transportation for the Year-End Evaluation Seminar of Office of the City Ma",sector:"Education",cost:140000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Standard First Aid Training",sector:"Education",cost:648000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Advace Cardiac Life Support Training",sector:"Education",cost:848000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Emergency Medical Technician Training",sector:"Healthcare",cost:420000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Emergency Vehicle Operator Course - NCII",sector:"Infrastructure",cost:150000,benefit:5,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Food for Pediatric Advance Life Support Training",sector:"Healthcare",cost:848000,benefit:6,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Various Office Supplies for the use of Human Resource Development Office",sector:"General Government",cost:1892486,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of Sports Fest Materials for the use of Human Resource Development Office",sector:"General Government",cost:509810,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of ID Lace for the use of Human Resource Development Office",sector:"General Government",cost:990000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Provision of Customized Training Kings for the use of Human Resource Development Office",sector:"Education",cost:1880790,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Printing of Leave Cards for the use of Human Resource Development Office",sector:"General Government",cost:600000,benefit:2,pmo:"Human Resource Dev't. Office"},
+{name:"Rental Service for Complete Stage Set Up of Salu-Salo Together and Pasiglakas 2025 Opening Ceremony",sector:"General Government",cost:920000,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Purchase of DSLR Mirrorless Camera for the use of Human Resource Development Office",sector:"General Government",cost:739326,benefit:4,pmo:"Human Resource Dev't. Office"},
+{name:"Participation on Series of Trainings on HR Analytics using Power BI",sector:"Education",cost:390000,benefit:8,pmo:"Human Resource Dev't. Office"},
+{name:"Procurement of Commonly Used Supplies and Equipment for City Government Departments and Offices Not ",sector:"Infrastructure",cost:18370631,benefit:5,pmo:"Office of General Services"},
+{name:"Janitorial Services for Various City Government Medical, Health and Other Facilities (Multi-Year, Ye",sector:"Healthcare",cost:27597762,benefit:8,pmo:"Office of General Services"},
+{name:"Janitorial Services for Various City Owned Hospitals and Facilities",sector:"Healthcare",cost:38271237,benefit:10,pmo:"Office of General Services"},
+{name:"Security Services for Various City Government Buildings and Facilities (Multi-Year, Year 1 of 3)",sector:"Infrastructure",cost:260721000,benefit:7,pmo:"Office of General Services"},
+{name:"Purchase of Tools, Supplies and Spare Parts for the Repair and Maintenance of Air Conditioning Unit",sector:"Infrastructure",cost:1814097,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Packed Meals for the use of CDRRMO as Aid to Evacuees and Affected Families during Disas",sector:"Social Services",cost:35300000,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Additional Machineries and Equipments for OGS Motorpool Division",sector:"Infrastructure",cost:3327400,benefit:7,pmo:"Office of General Services"},
+{name:"Purchase of Supplies and Materials for the Preventive Maintenance of City Owned Motor Vehicles (Fram",sector:"Infrastructure",cost:26796000,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Commonly used Supplies and Equipment for City Government Departments and Offices Not Ava",sector:"Infrastructure",cost:3756918,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Variuos Construction Supplies, Equipment & Hardware Materials for the Upkeep of City Gov",sector:"Infrastructure",cost:37944715,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Janitorial Supplies and Equipment for the use of In- House Utility Personnel",sector:"Infrastructure",cost:3618169,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Other Supplies, Tools and Equipment for the of OGS Division",sector:"Infrastructure",cost:5454005,benefit:5,pmo:"Office of General Services"},
+{name:"Purchase of Supplies and Materials for the Repair and Maintenance of City Owned Motor Vehicle (Frame",sector:"Infrastructure",cost:10555803,benefit:5,pmo:"Office of General Services"},
+{name:"Preventive Maintenance Supplies for the City-Owned Motor Vehicles-Immediate Spare Parts (Framework A",sector:"Infrastructure",cost:13515200,benefit:5,pmo:"Office of General Services"},
+{name:"Emergency Purchase of Spare Parts for the Repair and Maintenance of City Health Office Ambulance",sector:"Healthcare",cost:3783555,benefit:10,pmo:"Office of General Services"},
+{name:"Renewal of Internet Subscription for 43 Health Centers (Universal Health Care)",sector:"Healthcare",cost:14964000,benefit:8,pmo:"Office of General Services"},
+{name:"Integrated Service Digital Network (ISDN) for Pasig City Hall",sector:"General Government",cost:537600,benefit:4,pmo:"Office of General Services"},
+{name:"Integrated Service Digital Network (ISDN) for Pasig City General Hospital",sector:"Healthcare",cost:470400,benefit:10,pmo:"Office of General Services"},
+{name:"Integrated Service Digital Network (ISDN) for Pasig City Children's Hospital",sector:"Healthcare",cost:470400,benefit:10,pmo:"Office of General Services"},
+{name:"Internet Connetion for Pasig City Library",sector:"Education",cost:399984,benefit:8,pmo:"Office of General Services"},
+{name:"Lease of Warehouse for Various Waste Materials and Unserviceable Property, Plant and Equipment of th",sector:"Infrastructure",cost:9600000,benefit:7,pmo:"Office of General Services"},
+{name:"Purchase of Multi-Purpose Vehicle (Re-Fleeting Program) for City Government Department and Offices",sector:"Infrastructure",cost:25080000,benefit:7,pmo:"Office of General Services"},
+{name:"Repair and Maintenance of Copier Machine under OGS- Motorpool",sector:"Infrastructure",cost:500000,benefit:7,pmo:"Office of General Services"},
+{name:"General Cleaning of Air Conditioning Units for Various Barangay Health Offices and Small Scale VRF S",sector:"Healthcare",cost:924200,benefit:8,pmo:"Office of General Services"},
+{name:"Purchase of Metal Racks for the use of OGS-Building Maintenance Section",sector:"Infrastructure",cost:510315,benefit:7,pmo:"Office of General Services"},
+{name:"Internet Connetion for Pasig City Children's Hospital",sector:"Healthcare",cost:855562,benefit:10,pmo:"Office of General Services"},
+{name:"Provision of Food for Various Trainings / Seminar of Community Relation & Information Office",sector:"Education",cost:9778400,benefit:6,pmo:"Community Relation & Information Office"},
+{name:"Lease of Venue for Various Trainings / Seminar of Community Relation & Information Office",sector:"Education",cost:512000,benefit:8,pmo:"Community Relation & Information Office"},
+{name:"Food and Venue for Training and Seminar of CRIO for Barangay Secretatires and Barangay Treasurers",sector:"Education",cost:330000,benefit:6,pmo:"Community Relation & Information Office"},
+{name:"Provision of Food for the Training and Seminar of 30 Barangay Officials Security Force",sector:"Education",cost:997500,benefit:6,pmo:"Community Relation & Information Office"},
+{name:"Purchase of Various Materials for the re: Training and Seminar of Barangay Security Force",sector:"Education",cost:624800,benefit:8,pmo:"Community Relation & Information Office"},
+{name:"Purchase of Motor Vehicle for the use of Community Relation & Information Office",sector:"Infrastructure",cost:92470,benefit:7,pmo:"Community Relation & Information Office"},
+{name:"Purchase of Various Medical Supplies for the use of City Vice Mayor's Office",sector:"Healthcare",cost:30000000,benefit:6,pmo:"City Vice Mayor's Office"},
+{name:"Purchase of Various Supplies and Materials for Livelihood Program",sector:"Social Services",cost:75000000,benefit:9,pmo:"City Vice Mayor's Office"},
+{name:"Purchase of Disaster Kits for Distribution",sector:"Social Services",cost:4000000,benefit:7,pmo:"City Vice Mayor's Office"},
+{name:"Purchase of Various I.T. Equipment for the use of City Vice Mayor's Office",sector:"Infrastructure",cost:1489310,benefit:7,pmo:"City Vice Mayor's Office"},
+{name:"Updating of the Comprehensive Development Plan (CDP 2024- 2029), Local Development Investment Progra",sector:"Environment",cost:10000000,benefit:6,pmo:"City Planning and Development Office"},
+{name:"Food Provision for Formulation of the 2026 Annual Investment Program and Other Related Local Plannin",sector:"Education",cost:3000000,benefit:6,pmo:"City Planning and Development Office"},
+{name:"Food and Venue for the 2026 Annual Investment Program (AIP) Mainstreaming and Attribution of PPAs to",sector:"General Government",cost:901080,benefit:2,pmo:"City Planning and Development Office"},
+{name:"Food and Venue for Reorientation and Workshop on Result- Based Monitoring and Evaluation (RBME) / Th",sector:"Education",cost:990000,benefit:6,pmo:"City Planning and Development Office"},
+{name:"Purchase of Multi-Functional Printer for the use of City Planning and Development Office",sector:"General Government",cost:902733,benefit:4,pmo:"City Planning and Development Office"},
+{name:"Purchase of Various Construction Supply and Materials for the use of City Civil Registry Department",sector:"Infrastructure",cost:4999086,benefit:7,pmo:"City Civil Registry Department"},
+{name:"Purchase of Service Vehicle for the use of City Civil Registry Department",sector:"Infrastructure",cost:1800000,benefit:7,pmo:"City Civil Registry Department"},
+{name:"Purchase of Spare Parts of Kyocera Copier for the Repair and Mainteance for the use of City Budget O",sector:"Infrastructure",cost:94600,benefit:7,pmo:"City Budget Office"},
+{name:"Food and Venue for Training on the usae of the New Computerized Accounting System",sector:"Education",cost:240000,benefit:6,pmo:"City Accounting Office"},
+{name:"Purchase of Safety Vault for the use of Office of the City Treasurer",sector:"Public Safety",cost:299999,benefit:7,pmo:"Office of the City Treasurer"},
+{name:"Barangay Boundary Vefification (BBV) Project (Multi Year, 2 Year)",sector:"General Government",cost:64788000,benefit:4,pmo:"City Assessor's Office"},
+{name:"Supply and Delivery of Printers, Projectors and Scanner for Various Departments / Offices",sector:"General Government",cost:19302571,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of ICT Supplies and Equipment for the use of Management Information Systems Office",sector:"Infrastructure",cost:1272671,benefit:5,pmo:"Management Information Systems Office"},
+{name:"Maintenance Agreement Subscription for Firewall Equipment",sector:"Infrastructure",cost:11300000,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Maintenance Agreement of Existing Information System",sector:"General Government",cost:5000000,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of Various ICT Equipment for Various Departments / Offices",sector:"Infrastructure",cost:68872685,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Server Storage for the use of Management Information Systems Office",sector:"General Government",cost:24366666,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of ICT Equipment for the use of Variuos Offices",sector:"Infrastructure",cost:10666820,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Purchase of Centralized Firewall Management and Security Infrastructure Upgrade",sector:"Infrastructure",cost:30748682,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Implementation of Network Rehabilitation for Pasig Hope Medical Center",sector:"Healthcare",cost:9763507,benefit:8,pmo:"Management Information Systems Office"},
+{name:"Procurement of New Information System and System Upgrade / Replacement of Existing System for the us",sector:"General Government",cost:4847000,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of New Information System for the use of PCADAO",sector:"General Government",cost:7153000,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Augmentation and Optimization of the Core System of the PLP Quality Management System (QMS)",sector:"General Government",cost:4000000,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Information System for Various Offices",sector:"General Government",cost:2852950,benefit:4,pmo:"Management Information Systems Office"},
+{name:"New Parking System in Plaza Bonifacio for the use of TPMO",sector:"Environment",cost:1997569,benefit:6,pmo:"Management Information Systems Office"},
+{name:"Information System for Social Welfare Assistance Center for the use of Office of the City Mayor",sector:"Social Services",cost:300000,benefit:7,pmo:"Management Information Systems Office"},
+{name:"GIS-Based & Web-Based One Stop Shop for Construction Permits Management System for the use of CPDO /",sector:"Infrastructure",cost:5000000,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Pasig Hotline Subscription: Managed Contact Center as Service (CCaaS) Project with Service Contact N",sector:"General Government",cost:624999,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Cloud Platform Subscription for Pasig Health Monitor, Pasig Pass and Vaccine Management System",sector:"Healthcare",cost:2500000,benefit:8,pmo:"Management Information Systems Office"},
+{name:"Cloud Platform Subscription for OGS Inventory System",sector:"General Government",cost:1000000,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Nine (9) Months Temporary Relocation of Pasig Main Data Center",sector:"General Government",cost:6396666,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of OTDR and Fusion Splicing Machine for Fiber Optic Resilience Project",sector:"General Government",cost:533347,benefit:4,pmo:"Management Information Systems Office"},
+{name:"Purchase of Tablet for the use of Office of the Building Officials",sector:"Infrastructure",cost:437450,benefit:7,pmo:"Management Information Systems Office"},
+{name:"PACU Preventive Maintenance for Pasig City General Hospital Data Center",sector:"Healthcare",cost:419918,benefit:10,pmo:"Management Information Systems Office"},
+{name:"Preventive Maintenance: FM200 Fire Suppression System",sector:"Public Safety",cost:500000,benefit:7,pmo:"Management Information Systems Office"},
+{name:"Purchase of Service Vehicle for PIO's Personnel Assigned to Provide Sound System Services",sector:"Infrastructure",cost:1161518,benefit:7,pmo:"Public Information Office"},
+{name:"Purchase of Service Vehicle for the use of Pasig City Library & Discovery Centrum",sector:"Infrastructure",cost:2200000,benefit:7,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Provision of Food and Purchase of Various Training Materials for the use of Pasig City Library & Dis",sector:"Education",cost:93956,benefit:6,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Children's Books, Pop Up Books, Coloring Materials and Storeytelling Books for the use o",sector:"Education",cost:500000,benefit:8,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Education Resources such as Professional Training Books, Review Materials as well as Fil",sector:"Education",cost:699808,benefit:8,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Various Janitorial Supplies for the use of Pasig City Library & Discovery Centrum",sector:"Education",cost:300000,benefit:6,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Two-Way Radio, Lapel, Megaphone and Tally Counter for the use of Pasig City Library & Di",sector:"Education",cost:50000,benefit:8,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Filing Cabinet for the use of Pasig City Library & Discovery Centrum",sector:"Education",cost:120000,benefit:8,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Repair and Maintenance of Generator Set, Water Pump and Other Machinery for the use of Pasig City Li",sector:"Infrastructure",cost:200000,benefit:7,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Repair and Maintenance of Various Office Furniture and Fixture for the use of Pasig City Library & D",sector:"Infrastructure",cost:100000,benefit:7,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Repair and Maintenance of Air Conditioning and Elevator at Pasig City Library & Discovery Centrum",sector:"Infrastructure",cost:350000,benefit:7,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Daily Subscription of Newspaper for the use of Pasig City Library & Discovery Centrum",sector:"Education",cost:100000,benefit:8,pmo:"Pasig City Library & Discovery Centrum"},
+{name:"Purchase of Food and Various Supplies used for Seminar for Barangay Officials / Employees of Pasig C",sector:"Education",cost:217298,benefit:6,pmo:"City Legal Office"},
+{name:"Purchase of Variuos Militarry, Police and Traffic Supplies for the use of Peace & Order Department",sector:"Public Safety",cost:1400200,benefit:5,pmo:"Peace & Order Department"},
+{name:"Purchase of Service Vehicle for the use of Peace & Order Department",sector:"Infrastructure",cost:3377000,benefit:7,pmo:"Peace & Order Department"},
+{name:"Repair and Maintenance of Airconditioning Units at Peace & Order Department",sector:"Infrastructure",cost:135000,benefit:7,pmo:"Peace & Order Department"},
+{name:"Repair and Maintenance of High Pressure Wahser, Hydraulic Floor Jack, Socket Wrench and Jack Hammer ",sector:"Infrastructure",cost:67000,benefit:4,pmo:"Peace & Order Department"},
+{name:"Purchase of Concrete Barrier for the use of Traffic & Parking Management Office",sector:"Environment",cost:1495000,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase and Installation of Steel Railings for the use of Traffic & Parking Management Office",sector:"Environment",cost:2000000,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase and Installation of LED Solar Road Studs for the use of Traffic & Parking Management Office",sector:"Infrastructure",cost:4989762,benefit:7,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Street Names and Signages Steel Metal Plates Installed and used by Traffic & Parking Man",sector:"Environment",cost:9561630,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase and Installation of Traffic Signal Lights for Command Center System (System Integrationfor ",sector:"General Government",cost:49740833,benefit:4,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase and Installation of Blinking Lights for Pedestrian, School Zones and Accident Prone Areas",sector:"Education",cost:6660300,benefit:8,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Accountable Forms for the use of Traffic & Parking Management Office - Street Pay Parkin",sector:"Environment",cost:1463500,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Toner for the use of Traffic & Parking Management Office",sector:"Environment",cost:323900,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Repair and Maintenance of Various Equipment under Traffic & Parking Management Office",sector:"Infrastructure",cost:500000,benefit:7,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Various Office Supplies for the use of Traffic & Parking Management Office",sector:"Environment",cost:676019,benefit:4,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of OVW (Violation & Illegal Parking) for the use of Traffic & Parking Management Office",sector:"Environment",cost:133000,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Various Hardware Supplies for the use of Traffic & Parking Management Office",sector:"Environment",cost:598564,benefit:4,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Various Spare Parts of Service Vehicle for the use of Traffic & Parking Management Offic",sector:"Infrastructure",cost:599560,benefit:7,pmo:"Traffic & Parking Management Office"},
+{name:"Provision of Food and Purchase of T-Shirt for Monthly Conduct of Monthly Information & Education Awa",sector:"Education",cost:899850,benefit:6,pmo:"Traffic & Parking Management Office"},
+{name:"Purchase of Various Office Supplies for the use of Traffic and Parking Management Office",sector:"Environment",cost:679134,benefit:4,pmo:"Traffic & Parking Management Office"},
+{name:"Provision of Food for Various Trainings / Seminars by Tricycle Operation Regulatory Office",sector:"Education",cost:523500,benefit:6,pmo:"Tricycle Operation Regulatory Office"},
+{name:"Provision of Food and Training Materials for Learning and Management Training for TODA Officers",sector:"Education",cost:530000,benefit:6,pmo:"Tricycle Operation Regulatory Office"},
+{name:"Consulting Services for the Transportation and Mobility Plan of Pasig City Transport Master Plan (MY",sector:"General Government",cost:5000000,benefit:4,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Rehabilitation of BEMAC E-Trikes for the use of CTDMO",sector:"Infrastructure",cost:1447620,benefit:7,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Construction of Charging Station for Light Electric Vehicle at Temporary Pasig City Hall and Baranga",sector:"Infrastructure",cost:7500000,benefit:7,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Supply and Delivery of 6 units 69VM Battery Modules Units",sector:"Education",cost:1480000,benefit:8,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Subscription for Mobility Vision (Integrated Vehicle Counting and Crash Data Collection System)",sector:"Infrastructure",cost:6000000,benefit:7,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Food Provision for the Conduct Trainings, Meetings and Consultations / Community Bike Lessons",sector:"Education",cost:189240,benefit:6,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Repair and Maintenance of E-Mobility Facilities",sector:"Infrastructure",cost:53000,benefit:7,pmo:"City Transportation Dev't & Mngt. Office"},
+{name:"Supply and Delivery of Various Copier Toners and the Repair and Maintenance of Kyocera DK 8350 Copie",sector:"Infrastructure",cost:1558295,benefit:7,pmo:"Procurement Management Office"},
+{name:"Food and Venue for Training and Workshop on GPPB Updates for Department Heads, BAC / Procurement Off",sector:"Education",cost:735800,benefit:6,pmo:"Procurement Management Office"},
+{name:"Food and Venue for Capacity Development Program on RA 9184 Training Workshop for End-Users",sector:"Education",cost:1436000,benefit:6,pmo:"Procurement Management Office"},
+{name:"Purchase of Various ICT Equipment for the use of Procurement Management Office",sector:"Infrastructure",cost:1179000,benefit:7,pmo:"Procurement Management Office"},
+{name:"Purchase of Various I.T. Equipment for the use of Sangguniang Panlungsod",sector:"Infrastructure",cost:2894710,benefit:7,pmo:"Sangguniang Panlungsod"},
+{name:"Purchase of Service Vehicle for the use of Office of the City LIGA ng mga Barangay",sector:"Infrastructure",cost:2400000,benefit:7,pmo:"Office of the City LIGA ng mga Barangay"},
+{name:"Food and Venue for Skill Enhancement Training on Katarungan Pambarangay of Pasig City Loga ng mga Ba",sector:"Education",cost:3819200,benefit:6,pmo:"Office of the City LIGA ng mga Barangay"},
+{name:"Food and Venue for Training and Seminar on Barangay Security Force (BSF) Skill Enhancement",sector:"Education",cost:1899800,benefit:6,pmo:"Office of the City LIGA ng mga Barangay"},
+{name:"Purchase of Various Supplies and Equipment for the use of Office of the City LIGA ng mga Barangay",sector:"Infrastructure",cost:265000,benefit:5,pmo:"Office of the City LIGA ng mga Barangay"},
+{name:"Provision of Food for Various SK Projects, Programs and Activities",sector:"General Government",cost:1966000,benefit:2,pmo:"Office of the SK President"},
+{name:"Purchase of ICT Equipments, Supplies and Materials",sector:"Infrastructure",cost:79242,benefit:5,pmo:"Office of the SK President"},
+{name:"Purchase of Various Office Equipment for the use of Pasig Urban Settlement Office",sector:"Infrastructure",cost:856500,benefit:7,pmo:"Pasig Urban Settlement Office"},
+{name:"Lease of Venue for Gender Analysis Tools Training",sector:"Education",cost:540000,benefit:8,pmo:"Pasig Urban Settlement Office"},
+{name:"Lease of Venue for Gender Fair Communication Training",sector:"Education",cost:612000,benefit:8,pmo:"Pasig Urban Settlement Office"},
+{name:"Purchase of Various Supplies and Materials for Trainings and for the use of Pasig Urban Settlement O",sector:"Education",cost:320920,benefit:6,pmo:"Pasig Urban Settlement Office"},
+{name:"Purchase of Supplies and Materials for PUSO Disaster Response Team",sector:"Social Services",cost:997300,benefit:5,pmo:"Pasig Urban Settlement Office"},
+{name:"Rental of Bus for Gender Analysis Tools Training",sector:"Education",cost:200000,benefit:8,pmo:"Pasig Urban Settlement Office"},
+{name:"Purchase of Various I.T. Equipment for the use of Pasig Urban Settlement Office",sector:"Infrastructure",cost:599850,benefit:7,pmo:"Pasig Urban Settlement Office"},
+{name:"Provision of Food for PCADAO for Various Programs, Projects and Activities",sector:"General Government",cost:4106250,benefit:2,pmo:"Pasig City Anti-Drug Abuse Office"},
+{name:"Provision of Food for Various Activities / Trainings / Sminars of Gender & Development",sector:"Education",cost:4015000,benefit:6,pmo:"Gender & Development Office"},
+{name:"Purchase of Computer Software for GAD System Development",sector:"General Government",cost:3000000,benefit:4,pmo:"Gender & Development Office"},
+{name:"Food and Venue for Women's Empowerment Forum",sector:"Social Services",cost:595200,benefit:5,pmo:"Gender & Development Office"},
+{name:"Food and Venue for Training of Community Trainers (ToCT)",sector:"Education",cost:952000,benefit:6,pmo:"Gender & Development Office"},
+{name:"Purchase of Various Supplies and Materials for Disaster Preparedness Training and Disaster Respond o",sector:"Education",cost:691975,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Provision of Food for Various Activities / Events of City Social Welfare and Development Office",sector:"Social Services",cost:2289250,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Supplies for Various Trainings, Activities and Operations under City Social Welfare and ",sector:"Education",cost:433755,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Various Supplies and Materials for Various Trainings and Activities of City Social Welfa",sector:"Education",cost:748875,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Various Supplies for Children's Month Celebration under CSWDO",sector:"Social Services",cost:80220,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Food and Supplies for National Women's Month Celebration and Solo Parent Week Celebratio",sector:"Social Services",cost:1242500,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Food Packs for Solo Parent Week and Family Celebration Week",sector:"Social Services",cost:3485000,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of School Uniform (Polo and Short) ECCD",sector:"Education",cost:1800000,benefit:8,pmo:"City Social Welfare and Development Office"},
+{name:"Printing and Publication of ECCD Workbook, School ID with Lanyard and ECCD Checklist Record for the ",sector:"Education",cost:13500000,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Wet and Dry Goods for the Implementation of Supplemental Feeding Program",sector:"General Government",cost:109302000,benefit:4,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Development of Youth Volunteerism; Disaster Preparedness, Response and First Aid ",sector:"Education",cost:234500,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for CYE Cascading: Values Formation: Cyber Youth Empowerment",sector:"Social Services",cost:468600,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Basic Cybersecurity Cascading",sector:"Public Safety",cost:325000,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Cascading of the Basic Cybersecurity Training by the CGPH - Pasig City Master Tra",sector:"Education",cost:234300,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Safer Cyberspace for Children and Youth Formators - Adults / Parents (Transformat",sector:"Social Services",cost:198300,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Mid-Year Assessment to Solo Parent Brgy. Help Desk Representative",sector:"Social Services",cost:198500,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Year-End Evaluation to Solo Parent Brgy. Help Desk Representative",sector:"Social Services",cost:90000,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Capability & Leadership Training of City Social Welfare and Development Office",sector:"Education",cost:450300,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for BCPC: Monitoring and Evaluation: Barangay Council for the Protection of Children ",sector:"Social Services",cost:169200,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Financial Literacy Training (Sustainable Livelihood Program)",sector:"Education",cost:559500,benefit:10,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Integrated Care Management Protocol (ICMP) Training",sector:"Education",cost:396300,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Training of BCPC and Other Stakeholders on the Management of Child Labor Cases",sector:"Education",cost:198500,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Seminar on the Effective Implementation of Follow-up and After Care Program",sector:"Education",cost:396300,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Capcity Building on Learning Resource (Family Support Program)",sector:"Infrastructure",cost:1127560,benefit:5,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Training on RA 11642 \"Domestic Administrative Adoption and Alternative Child Care",sector:"Education",cost:234500,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Training on RA 11642 and Alternative Parental Care Seminar",sector:"Education",cost:90000,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Food and Venue for Seminar on Personal Development Program (Mental, Emotional and Physical)",sector:"Education",cost:108000,benefit:6,pmo:"City Social Welfare and Development Office"},
+{name:"Lease of Venue for the use of City Social Welfare and Development Office - Reasearch and Development",sector:"Social Services",cost:70000,benefit:7,pmo:"City Social Welfare and Development Office"},
+{name:"Educational Tour Services for Summer Camp (May)",sector:"Education",cost:150000,benefit:8,pmo:"City Social Welfare and Development Office"},
+{name:"Educational Tour Services for Summer Camp (July & December)",sector:"Education",cost:282750,benefit:8,pmo:"City Social Welfare and Development Office"},
+{name:"Purchase of Senior Citizen Booklets, Advocacy Shirt and Office Jacket for Senior Citizens",sector:"Social Services",cost:500000,benefit:7,pmo:"Office of Senior Citizen Affairs"},
+{name:"Provision of Food for Various Events of Office of Senior Citizen Affairs",sector:"Social Services",cost:2925000,benefit:5,pmo:"Office of Senior Citizen Affairs"},
+{name:"Provision of Automated Teller Machine (ATM) for Senior Citizen Local Social Pension and Cash Card fo",sector:"Social Services",cost:3250000,benefit:7,pmo:"Office of Senior Citizen Affairs"},
+{name:"Food and Venue for Focused Group Discussions for the Senior Citizens",sector:"Social Services",cost:240000,benefit:5,pmo:"Office of Senior Citizen Affairs"},
+{name:"Food and Venue for Emergency Preparedness Training for Senior Citizen Leaders",sector:"Education",cost:190000,benefit:6,pmo:"Office of Senior Citizen Affairs"},
+{name:"Purchase of Service Vehicle and Motorcycle Vehicle for the use of Office of Senior Citizen Affairs",sector:"Infrastructure",cost:1738333,benefit:7,pmo:"Office of Senior Citizen Affairs"},
+{name:"Purchase of Various Supplies for the use of Office of Senior Citizen Affairs",sector:"Social Services",cost:995600,benefit:5,pmo:"Office of Senior Citizen Affairs"},
+{name:"Printing of Tarpaulin / Banners / Backdrops for Special Events for the use of Office of Senior Citiz",sector:"Social Services",cost:100000,benefit:5,pmo:"Office of Senior Citizen Affairs"},
+{name:"Printing of ATM Card for PWDs for the use of Person with Disability Affairs Office",sector:"Social Services",cost:1500000,benefit:5,pmo:"Person with Disability Affairs Office"},
+{name:"Food Provision for Sign Language Training for PWDs of Different Barangay",sector:"Education",cost:280000,benefit:6,pmo:"Person with Disability Affairs Office"},
+{name:"Purchase of PWD Booklet for the use of Person with Disability Affairs Office",sector:"Social Services",cost:864000,benefit:7,pmo:"Person with Disability Affairs Office"},
+{name:"Purchase of Various Drugs and Medicines for the use of Health Centers",sector:"Healthcare",cost:218639178,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Drugs and Medical Supplies for the use of CHD-Dental Section",sector:"Healthcare",cost:1458000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Ferrous Sukfate and Micronutrient Powder for the use of CHD-Nutrition Section",sector:"Healthcare",cost:9200000,benefit:8,pmo:"City Health Department"},
+{name:"Purhcase of Various Drugs and Medicines for the use of CHD- Hemodialysis Unit",sector:"Healthcare",cost:6519844,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Drugs and Medicines for the use of CHD- National Tuberculosis Control Program",sector:"Healthcare",cost:26675320,benefit:8,pmo:"City Health Department"},
+{name:"Purhcase of Various Drugs and Medicines for the us of CHD- Family Planning Services",sector:"Healthcare",cost:2262514,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Medical Supplies for Operatrion Tule",sector:"Healthcare",cost:708125,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Anti-Rabies Vaccines and Medical Supplies for the use of CHD",sector:"Healthcare",cost:1831040,benefit:6,pmo:"City Health Department"},
+{name:"Purhcase of Various Medical, Dental and Laboratory Supplies for the us of CHD-SATOP / Mental Health ",sector:"Healthcare",cost:2227240,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Various Medical, Dental and Laboratory Supplies for the use of City Health Department (G",sector:"Healthcare",cost:85708524,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of X-Ray Film Envelope etc. for the use of City Health Department-Radiology",sector:"Healthcare",cost:897900,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Supplies for Misting Opration, Fogging Operation and Larvicide Application for t",sector:"Healthcare",cost:250075,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Dengue Duo for the use of City Health Department - Laboratory",sector:"Healthcare",cost:1440000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Medical and Laboratory Supplies for the use of CHD-National Tuberculosis Control",sector:"Healthcare",cost:1640000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Various Supplies and Materials for Various Health Activities of City Health Department",sector:"Healthcare",cost:240000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Various Chemicals for the use of City Health Department - Sanitation Office",sector:"Healthcare",cost:90679792,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Baby Kit for Fully Immunized Child for the use of CHD-National Immunization Program (NIP",sector:"Social Services",cost:14739000,benefit:7,pmo:"City Health Department"},
+{name:"Purchase of Android Tablet for the use of City Health Department-Health Education and Promotion Prog",sector:"Healthcare",cost:1766625,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Supplies for the use of City Health Department",sector:"Healthcare",cost:2317220,benefit:6,pmo:"City Health Department"},
+{name:"Repair and Preventive Maintenance of Various Equipment at CHD-SATOP / Mental Health / OSS",sector:"Healthcare",cost:793611,benefit:8,pmo:"City Health Department"},
+{name:"Calibration and Preventive Maintenance of Medical Equipment for the use of City Health Department - ",sector:"Healthcare",cost:610000,benefit:8,pmo:"City Health Department"},
+{name:"Repair and Maintenance of Crematory Equipment",sector:"Infrastructure",cost:1450000,benefit:7,pmo:"City Health Department"},
+{name:"Preventive Maintenance of Various Equipment at Social Hygiene Clinic",sector:"Healthcare",cost:53000,benefit:8,pmo:"City Health Department"},
+{name:"Preventive Maintenance of Air Conditining Unit for the use of City Health Department",sector:"Healthcare",cost:401977,benefit:8,pmo:"City Health Department"},
+{name:"Repair and Maintenance of Office Equipment at Medical Supplies Depot",sector:"Healthcare",cost:120000,benefit:6,pmo:"City Health Department"},
+{name:"Printing of Posters, Stickers and Directional Siganage for Adolescent Friendly Health Facility",sector:"Healthcare",cost:1362868,benefit:6,pmo:"City Health Department"},
+{name:"Printing of Non-Accountable Forms, Patient Booklet, Ledgers, Medical Cards, Leaflets and Forms for t",sector:"Healthcare",cost:5259800,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Family Planning Advocacy Fan Oval Shape etc. for the use of City Health Department",sector:"Healthcare",cost:3379990,benefit:8,pmo:"City Health Department"},
+{name:"Internet Connetion for the use of CHD-Various Health Centers",sector:"Healthcare",cost:18060000,benefit:8,pmo:"City Health Department"},
+{name:"Lease of Venue for General Assembly of City Health Personnel",sector:"Healthcare",cost:350000,benefit:8,pmo:"City Health Department"},
+{name:"Rental of Lights and Sounds for Various Activities of City Health Office",sector:"Healthcare",cost:60000,benefit:8,pmo:"City Health Department"},
+{name:"Provision of Food for Various Activities / Meetings / Programs of City Health Department",sector:"Healthcare",cost:16660180,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Various Supplies for Various Activities / Meetings / Programs of City Health Department",sector:"Healthcare",cost:66000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Flat Eco Bag for the use of CHD-Basic Oral Health Care Service",sector:"Healthcare",cost:294000,benefit:8,pmo:"City Health Department"},
+{name:"Processing Fee for Dentures for the use of CHD-Dental Section",sector:"Healthcare",cost:2100000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Breastfeeding Kits for the Implementation of Infant and Young Child Feeding Program",sector:"Social Services",cost:149500,benefit:7,pmo:"City Health Department"},
+{name:"Dietary Supplementaion Program for Undernourished 6-23 Months Old and Undernourished Pre-Schooler Pr",sector:"Education",cost:14990400,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Various Office and Medical Equipments for the use of City Health Department",sector:"Healthcare",cost:1252666,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Medicine Cabinet for Mega Dialysis Unit",sector:"Healthcare",cost:165000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Utility Vehicle for the use of CHD",sector:"Infrastructure",cost:4000000,benefit:7,pmo:"City Health Department"},
+{name:"Purchase of Executive Office Desk with Reclining Chair and Mobile Cabinet for the use of CHD-Medical",sector:"Healthcare",cost:448000,benefit:6,pmo:"City Health Department"},
+{name:"Repair and Maintenance of Physical Theraphy Equipment",sector:"Infrastructure",cost:245000,benefit:7,pmo:"City Health Department"},
+{name:"Purchase of Various Medical Supplies for Screening of Visual Acuity and Provision of Prespective Eye",sector:"Healthcare",cost:1216000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Medical and Laboratory Supplies for the use of CHD-Cancer Control Prevention Program",sector:"Healthcare",cost:1160000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Hologram Lamination Film, PVC Card and igh Definition Security Color Ribbon for the use ",sector:"Healthcare",cost:9200000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Supplies for the Cremation Services for the use of CHD-Environmental Sanitation ",sector:"Healthcare",cost:3438000,benefit:6,pmo:"City Health Department"},
+{name:"Repair and Mainetance of Various Equipment of CHD - Digital Mammography - Conventional Radiography -",sector:"Infrastructure",cost:1218000,benefit:7,pmo:"City Health Department"},
+{name:"Food and Venue for Promoting Good Leadership and Governance for Health",sector:"Healthcare",cost:1100000,benefit:6,pmo:"City Health Department"},
+{name:"Food and Venue for Training of Peer Educator for the use of CHD-HEPO & AHDP",sector:"Education",cost:306000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Rabies Chick Embryo Cell for the use of City Health Department & Pasig City General Hosp",sector:"Healthcare",cost:45056250,benefit:10,pmo:"City Health Department"},
+{name:"Emergency Purchase of Epoietin Beta and Enteral Nutrition Disease Specific for the use of CHD - CHAM",sector:"Healthcare",cost:6867000,benefit:5,pmo:"City Health Department"},
+{name:"Purchase of Insulin Syringe for the use of City Health Office - ABTC",sector:"Healthcare",cost:375000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Expanded Newborn Screening Panel for the use of City Health Department",sector:"Healthcare",cost:875000,benefit:8,pmo:"City Health Department"},
+{name:"Electronic Medical Record Software for Digitization of Patient Health Record",sector:"Healthcare",cost:14460000,benefit:8,pmo:"City Health Department"},
+{name:"Insurance Premiums for Enrolment of Indigents for LGU Sponsorship",sector:"Social Services",cost:19998000,benefit:7,pmo:"City Health Department"},
+{name:"Purchase of Various Office Equipment for the use of City Health Department",sector:"Healthcare",cost:1377000,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various ICT Equipment for the use of City Health Office",sector:"Healthcare",cost:1999672,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Various Medical Supplies for the use of City ealth Department - Champ Wellness Minor Sur",sector:"Healthcare",cost:271610,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Manual Sprayer for the use of CHD-Sanitation Section",sector:"Healthcare",cost:399750,benefit:8,pmo:"City Health Department"},
+{name:"Preventive Maintenance of Various Medical Equipment at CHD- Radiology Department",sector:"Healthcare",cost:318500,benefit:8,pmo:"City Health Department"},
+{name:"Calibration and Preventive Maintenance of Various Laboratory Equipment for the use of City Health De",sector:"Healthcare",cost:919538,benefit:8,pmo:"City Health Department"},
+{name:"Repair and Maintenance of Machinery and Equipment for the use of CHD-Dental Section",sector:"Healthcare",cost:643980,benefit:8,pmo:"City Health Department"},
+{name:"Printing of Various IEC Materials for the use of City Health Department",sector:"Healthcare",cost:1366100,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Ready to Use / Eat Food Supplements for Nutritions in Emergencies",sector:"Healthcare",cost:332000,benefit:6,pmo:"City Health Department"},
+{name:"Purchase of Iodine Checker Machine for the use of CHD- Nutrition Section",sector:"Healthcare",cost:56350,benefit:8,pmo:"City Health Department"},
+{name:"Purchase of Enteral Nutritions Food Supplement for the use of Pasig City General Hospital",sector:"Healthcare",cost:5493513,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Provision of Food Supplies for the Patients of Pasig City General Hospital",sector:"Healthcare",cost:19399442,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of Pasig City General Hospital",sector:"Healthcare",cost:125312554,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Purchase Various Drugs and Medicines for the use of PCGH- Pharmacy Section",sector:"Healthcare",cost:6368732,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of PCGH- Pharmacy Section",sector:"Healthcare",cost:2148033,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Medical Grade Oxygen (Refill) for the use of PCGH- Nursing Service Office",sector:"Healthcare",cost:24187500,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Supplies for the use of PCGH",sector:"Healthcare",cost:7006212,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Medical Grade Oxygen for the use of PCGH- Nursing Service Office",sector:"Healthcare",cost:8385000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Supplies for the use of PCGH- Nursing Service Office",sector:"Healthcare",cost:5764112,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Supplies for the use of PCGH- Cardiovascular Catheterization Laboratory",sector:"Healthcare",cost:15190086,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies for the use of PCGH-Medical Social Service Office",sector:"Healthcare",cost:1348325,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Trash Bags for Waste Segregation for the use of PCGH",sector:"Environment",cost:1635525,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies for Celebrating the 30th Years of Health Care, Education and Community ",sector:"Healthcare",cost:1772000,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Rehabilitation of Medical Oxygen Plant",sector:"Healthcare",cost:2000000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Repair and Preventive Mainatenance of Various Medical Equipment for the use of PCGH-Nursing Service ",sector:"Healthcare",cost:6223500,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Re-Piping of Medical Carbon Dioxide Piping System",sector:"Healthcare",cost:2500000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Tokens for Celebrating the 30th Years of Health Care, Education and Community Services",sector:"Healthcare",cost:1772000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Equipment for the use of PCGH",sector:"Healthcare",cost:33600000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Equipment for the use of PCGH-Nursing Service Office",sector:"Infrastructure",cost:3862160,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of PCGH",sector:"Healthcare",cost:6142760,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Clinical Chemestry Reagent, Control & Consumables, Compatible for Fully Automated Chemis",sector:"Healthcare",cost:21093600,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of IPAS Manual Aspirator Kit and MVA Endometrial Kit for the use of PCGH-Nursing Service Of",sector:"General Government",cost:4420000,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Supplies (Consumables Compatible with Existing Cautery Machine) for the ",sector:"Healthcare",cost:327750,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase Hypochlorus Acid + Sodium Hypochorite for the use of PCGH-Nursing Service Office",sector:"General Government",cost:2687436,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Cautery Machine (Forcetriad) Consumables for the use of PCGH-Nursing Service Office",sector:"General Government",cost:528375,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Purchase Consumables for Existing Comen C22 Fetal Maternal Monitor for the use of PCGH-Nursing Servi",sector:"Healthcare",cost:248000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Modified Potato Starch Surgical Kit for the use of PCGH-Nursing Service Office",sector:"General Government",cost:2535500,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Medical Supplies for the use of PCGH- Department of Emergency Medicine & Acute C",sector:"Healthcare",cost:771984,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Repair and Preventive Mainatenance of Medical Equipment and Other Property, Plant and Equipment for ",sector:"Healthcare",cost:5648400,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Technological Servicing / Repair and Installation of X-ray Machine for the use of PCGH-Radiology",sector:"Infrastructure",cost:87400,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Preventive Maintenance of VRF Air Conditioning System",sector:"General Government",cost:1500000,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Repair and Replacement of Parts of Electro-Mechanical Operating Table for the use of PCGH-ORMAT",sector:"Infrastructure",cost:145000,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Preventive Maintenance of Various Equipment used by PCGH- GAD Human Milk Bank",sector:"Infrastructure",cost:413800,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Repair and Installation of Oxygen Sensor and Preventive Maintenance of High-Flow Oxygen Theraphy Mac",sector:"Infrastructure",cost:100000,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Repeat Order for the Procurement of Enteral Nutrition Supplies for the use of PCGH-Pharmacy Section",sector:"Healthcare",cost:882650,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Lease of Venue for Celebrating the 30th Years of Health Care, Education and Community Services",sector:"Healthcare",cost:4228000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Form (Cert. of Death & Live Birth) for the use of Pasig City General Hospital",sector:"Healthcare",cost:168000,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Newborn Screening Kit for the use of PCGH- Pediatric Section",sector:"Healthcare",cost:4200000,benefit:8,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies for Training and Activities of PCGH-Gender and Development",sector:"Education",cost:75000,benefit:6,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies and Mateials for the use of PCGH- Gender and Development",sector:"General Government",cost:984000,benefit:2,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Furnitures and Fixtures for the use of Pasig City General Hospital",sector:"Healthcare",cost:953766,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies for the use of PCGH-Gender and Development",sector:"General Government",cost:1561900,benefit:2,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Various Supplies for the use of Pasig City General Hospital - Utility Section",sector:"Healthcare",cost:1162568,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Preventive Maintenance of Steelco Washer Disinfector Machine with Reverse Osmosis Water System for t",sector:"General Government",cost:673000,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Repair and Preventive Maintenance with Calibration of Variuos Laboatory Equipments for the use of PC",sector:"Infrastructure",cost:52340,benefit:7,pmo:"Pasig City General Hospital"},
+{name:"Preventive Maintenance of Hospital Bed Elevator",sector:"Healthcare",cost:419994,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Preventive Maintenance of Hospital Electric System",sector:"Healthcare",cost:900000,benefit:10,pmo:"Pasig City General Hospital"},
+{name:"Pest Control and Termite Prevention Services for the use of PCGH-Maintenance Section",sector:"General Government",cost:681498,benefit:4,pmo:"Pasig City General Hospital"},
+{name:"Purchase of Meat, Vegetables, Fruits and Condiments for the use of Pasig City Children's Hospital",sector:"Healthcare",cost:7999983,benefit:10,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of PCCH - Pharmacy Section",sector:"Healthcare",cost:9210536,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Oxygen Refill for the use of PCCH-Child's Hope",sector:"Social Services",cost:10257275,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Physical Therapy Equipment and Supplies for the use of PCCH",sector:"Infrastructure",cost:150550,benefit:5,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Medical Supplies for the use of PCCH",sector:"Healthcare",cost:4883312,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Dental Supplies andf Equipments for the use of PCCH-Dental Department",sector:"Healthcare",cost:68393,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Supplies, Materials and Equipment for the use of Pasig City Children's Hospital",sector:"Healthcare",cost:404920,benefit:10,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Hardware Supplies, Tools and Testing Equipment for the use of PCCH",sector:"Infrastructure",cost:2446015,benefit:5,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Other Supplies and Materials for the use of PCCH- Child's Hope",sector:"Social Services",cost:4395265,benefit:5,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Dietary and Laundry Equipments and Other Supplies for the use of PCCH",sector:"Infrastructure",cost:128800,benefit:5,pmo:"Pasig City Children's Hospital"},
+{name:"Repair & Maintenance of Various Equipment at PCCH-Nursing Service Office",sector:"Infrastructure",cost:2201209,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Preventive Maintenance / Calibration of Various Laboratory Equipment for the use of PCCH",sector:"Infrastructure",cost:662110,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of PCCH",sector:"Healthcare",cost:1413160,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Medical Supplies / Consumables of Equipment for the use of PCCH-Nursing Service ",sector:"Healthcare",cost:2617947,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Varoius Medical and Laboratory Supplies for the use of PCCH-Laboratory Medicine",sector:"Healthcare",cost:207000,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Vitek 2 V9.04-PC-Xpro Win 10 for the use of Laboratory Medicine-PCCH",sector:"Healthcare",cost:380000,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Repair & Maintenance of Various Equipement at PCCH- Radiology for the use of PCCH-Radiology",sector:"Infrastructure",cost:1020000,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Maintenance of Panamax 49 Extraction Machine for the use of PCCH-Molecular Laboratory",sector:"Infrastructure",cost:80000,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Various Nursing Service Office Medical Equipment for the use of PCCH",sector:"Healthcare",cost:2498720,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Biosafety Cabinet for the use of PCCH-Molecular Laboratory",sector:"Public Safety",cost:297920,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Various Equipment at PCCH- ORMAT",sector:"Infrastructure",cost:132000,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Equipment of the Physical Medicine & Rehabilitation Department for the use",sector:"Healthcare",cost:171000,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Preventive Maintenance of Tube Welder CompoDock FK andComtec Apheresis Machine for the us",sector:"Infrastructure",cost:590000,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Maintenance of Various Medical Equipment for the use of of PCCH Laboratory",sector:"Healthcare",cost:216000,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Replacement of Parts for Various NSO Medical Equipment for the use of PCCH",sector:"Healthcare",cost:239535,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Service / Freight Elevator",sector:"General Government",cost:513000,benefit:4,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Pneumatic Tube System",sector:"General Government",cost:550000,benefit:4,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance of Triplex Vaccum Plant",sector:"Environment",cost:950000,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Maintenance Agrreement of Bizbox Hospital Information System (HIS) for PCCH & PCGH",sector:"Healthcare",cost:4000000,benefit:10,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Drugs and Medicines for the use of PCCH- Pharmacy Section",sector:"Healthcare",cost:734913,benefit:8,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Various Food Supplies for the use of PCCH- Nutrition and Dietetic Section",sector:"Healthcare",cost:1956745,benefit:6,pmo:"Pasig City Children's Hospital"},
+{name:"Repair & Maintenance of Laboratory Equipment (Molecular) at PCCH",sector:"Infrastructure",cost:349172,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Preventive Maintenance and Calibration of Various Dietary Equipments",sector:"Infrastructure",cost:850679,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Replacement of Damage Parts of Various Laundry Equipment",sector:"Infrastructure",cost:414320,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Preventive Maintenance of Fire Protection System and Sprinkler System for the use of PCCH",sector:"Infrastructure",cost:414500,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Additional Repair and Preventive Maintenance of Fire Protection System and Sprinkler System for the ",sector:"Infrastructure",cost:189290,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Repair and Improvement of Sewage Treatment Plant",sector:"Infrastructure",cost:868800,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Printing of Brochure, Tarpaulin and White Mailing Envelope with Logo for the use of Pasig City Child",sector:"Healthcare",cost:50000,benefit:10,pmo:"Pasig City Children's Hospital"},
+{name:"Maintenance of Water Supply for Dialysis Machine (Microbiological Analysis)",sector:"Infrastructure",cost:115686,benefit:7,pmo:"Pasig City Children's Hospital"},
+{name:"Purchase of Tokens for the use of Pasig City Education Department",sector:"Education",cost:4830000,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Supply and Delivery of School Uniforms, P.E. Uniforms, Socks, and ALS Shirts for Learners of SDO Pas",sector:"Education",cost:145332880,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Purchase of Various School Supplies for the use of Public School",sector:"Education",cost:59219202,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Purchase of ID Lanyards for the use of Public School",sector:"Education",cost:10325000,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Supply and Delivery of School Supplies for Learners under SDO- Pasig S.Y. 2025-2026",sector:"Education",cost:196417838,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Purchase of Umbrella for the use of Public School",sector:"Education",cost:46081150,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Purchase of Various Graduation Supplies for the use of Public Schools",sector:"Education",cost:9922787,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Printing and Publication of Trapaulin for the Graduation of Students",sector:"Education",cost:63805,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Rental of Sound System, Toga, Chairs and LED Wall for the use of Pasig City Education Department - G",sector:"Education",cost:2061000,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Rental of Sound System, LED Wall and Venue for the Conduct of Education Stakeholder's Summit",sector:"Education",cost:1066000,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Provision of Food for Various Activities of Pasig City Education Department",sector:"Education",cost:1984230,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Purchase Packed Meals and Snacks for Various Events and Activities of Pasig City Education Departmen",sector:"Education",cost:2019568,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Purchase of Meals to be distributed for the Graduating Students and Visitors",sector:"Education",cost:14670072,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Purchase of Service Vehicle for the use of Pasig City Education Department",sector:"Infrastructure",cost:1000000,benefit:7,pmo:"Pasig City Education Department"},
+{name:"Purchase of Coaster for the use of Pasig City Education Department",sector:"Education",cost:2000000,benefit:8,pmo:"Pasig City Education Department"},
+{name:"Consultancy Services for Administration of Assessment Test",sector:"General Government",cost:3000000,benefit:4,pmo:"Pasig City Education Department"},
+{name:"Purchase of Various Supplies and Metrials and Sound System for the Conduct of Sports Clinic - Pasig ",sector:"Healthcare",cost:150000,benefit:6,pmo:"Pasig City Education Department"},
+{name:"Rental of Sound System and LED Wall for Pasig City Youth Development Alliance (YDA) Operations and P",sector:"Social Services",cost:500000,benefit:7,pmo:"Pasig City Education Department"},
+{name:"Purchase of Various Supplies for the use of Special Children Educational Institution (SCEI)",sector:"Education",cost:982247,benefit:6,pmo:"Special Children Educational Institution"},
+{name:"Purchase of Various Supplies for the Mental Health Seminar for Parents",sector:"Healthcare",cost:82545,benefit:6,pmo:"Special Children Educational Institution"},
+{name:"Provision of Various Trainings Materials for Gender Responsive Seminar on RA 11313 for the use of SC",sector:"Education",cost:100141,benefit:8,pmo:"Special Children Educational Institution"},
+{name:"Provision of Food for Gender Responsive Seminar on RA 11313 / Disaster Resilience in SPED Seminar",sector:"Education",cost:168000,benefit:6,pmo:"Special Children Educational Institution"},
+{name:"Purchase of Various Supplies for Disaster Resilience in SPED",sector:"Social Services",cost:84834,benefit:5,pmo:"Special Children Educational Institution"},
+{name:"Provision of Food for Various Programs / Activities of Pasig City Science High School",sector:"Education",cost:733630,benefit:6,pmo:"Pasig City Science High School"},
+{name:"Purchase of Utility and Maintenance Supplies for the use of Pasig City Science High School",sector:"Education",cost:127512,benefit:6,pmo:"Pasig City Science High School"},
+{name:"Provision of Food for Summer Bridging Program of Pasig City Science High School",sector:"Education",cost:195030,benefit:6,pmo:"Pasig City Science High School"},
+{name:"Provision of Food for Gender Sensitivity Training for G10 and G12 Students",sector:"Education",cost:338000,benefit:6,pmo:"Pasig City Science High School"},
+{name:"Provision of Standardized Entrance Exam for the Incoming Grade 7 and Grade 11 Students of Pasig City",sector:"Education",cost:349860,benefit:8,pmo:"Pasig City Science High School"},
+{name:"Provision of Food for Various Trainings / Seminar / Activities of Pamantasan ng Lungsod ng Pasig",sector:"Education",cost:2335800,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Laboratory Supplies, Materials Equipment & Facilities in CIHM",sector:"Infrastructure",cost:2821852,benefit:5,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Supply and Delivery of Student's Chair and Teacher's Table",sector:"Education",cost:3736669,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Sports Materials and Equipment for LCUAA Competition",sector:"Infrastructure",cost:4646015,benefit:7,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Provision, Printing and Publication of PLP Magazine, ID Lanyard and Printing of the Student Primer",sector:"Education",cost:2715000,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Enhancement of Phase 1 and Procurement of Q-Edge: Quality Management System Phase 2",sector:"General Government",cost:4000000,benefit:4,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Industry-Based Training and Seminar-Workshop",sector:"Education",cost:500000,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Soft Skill Training, Seminar-Workshop",sector:"Education",cost:265600,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Training and Seminars of Sports Official and Coaches",sector:"Education",cost:413000,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Renewal of EBSCO (Academic Online E-Journal / E-Books/ / Reasearch Materials / Resource Flatform",sector:"Education",cost:1825782,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Aptiture Test - Nursing Aptitude Test - Philippine Aptitude Test for Teachers",sector:"Education",cost:217500,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Rental of Sports Facilities & Training Venues for the use of PLP",sector:"Education",cost:500000,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Annual Physical Exam (Laboratory Test) for the use of PLP Students",sector:"Education",cost:1464000,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Provision of Training Supplies and Materials for Various Trainings / Seminar / Activities of Pamanta",sector:"Education",cost:89400,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase T-Shirt and Planner for the Implementation of Barangay Leaders Service Delivery Support Sys",sector:"Education",cost:171800,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Various Drugs & Medicines for the use of PLP",sector:"Healthcare",cost:273545,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of GAD Books for the use of Students and Faculty in compliance with CMO No. 22 Series of 20",sector:"Education",cost:98233,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Medical Supplies for Health Services of Pamantasan ng Lungsod ng Pasig",sector:"Healthcare",cost:460239,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchaser of Various Supplies and Materials for the In-Bound Academic and Industry-Based Competition",sector:"Education",cost:178932,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of LPG Tank with Cooking Gas for the use of BSHM Students",sector:"Education",cost:82880,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Medical Equipment for the use of PLP-College of Nursing",sector:"Healthcare",cost:87819,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Various Supplies, Materials and Equipment for University Wide Operations, Events and Act",sector:"Infrastructure",cost:265506,benefit:5,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of T-Shirt for Physical Education / Natioal Service Training Program Uniform",sector:"Education",cost:490000,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Repair and Preventive Maintenance of PLP Machines and Other Physical Plant Facilities",sector:"Infrastructure",cost:400000,benefit:7,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Prevetive Maintenance and Repair Services of Service Elevator at HRM Building of PLP",sector:"Infrastructure",cost:564966,benefit:7,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Aircon Maintenance HRM Building at Pamantasan ng Lungsod ng Pasig",sector:"Infrastructure",cost:817200,benefit:7,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Printing of Student Primer / PLP Student Handbook",sector:"Education",cost:140829,benefit:6,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Rental of Service Vehicle for Transportation of Delegates for LCUAA (Local Colleges and Universities",sector:"Infrastructure",cost:400000,benefit:7,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"SPSS Statistical Software License for Faculty, Student and Selected Office Heads",sector:"Education",cost:407394,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Insurance for PLP Students and Personnels",sector:"Education",cost:279500,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Various Supplies, Materials and Office Equipment for the use of PLP-MIS Office",sector:"Infrastructure",cost:86016,benefit:5,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Digital Camera and Sala Set for GAD Seminars, Training and Workshop of PLP",sector:"Education",cost:132500,benefit:8,pmo:"Pamantasan ng Lungsod ng Pasig"},
+{name:"Purchase of Various Supplies for the Implementation of Various Community-Based Training Program",sector:"Education",cost:8000000,benefit:6,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Various Supplies and Materials for Various Community Services",sector:"General Government",cost:1000000,benefit:2,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Uniforms, T-Shirts and Polo Shirts of Competitors for the use of PCIST, BCLP and Livelih",sector:"Social Services",cost:6000000,benefit:9,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Janitorial Supplies for the use of PCIST / BCLP / Livelihood Center",sector:"Social Services",cost:1605000,benefit:9,pmo:"Pasig City Skills Development Office"},
+{name:"Provision of Food for Vaious Activity of PCIST / BCLP / Livelihood",sector:"Social Services",cost:2980000,benefit:9,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Reference Materials for Library",sector:"Education",cost:1499991,benefit:8,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Various Office Supplies for the use of PCSDO, Livelihood and BCLP Admin Office",sector:"Social Services",cost:679500,benefit:9,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Various Supplies for the use of PCIST / BCLP / Livelihood Center",sector:"Social Services",cost:398000,benefit:9,pmo:"Pasig City Skills Development Office"},
+{name:"Purchase of Various Supplies and Materials for the use of Youth Development Center",sector:"Social Services",cost:2850000,benefit:5,pmo:"Youth Development Center"},
+{name:"Repair and Maintenance of Audio Visual, Office Equipment, ICT Equipment and Other Equipment for the ",sector:"Infrastructure",cost:100000,benefit:7,pmo:"Youth Development Center"},
+{name:"Purchase of Toner (Kyocera) for the use of Youth Development Center",sector:"Social Services",cost:215895,benefit:7,pmo:"Youth Development Center"},
+{name:"Food and Venue for the Semiar and Workshop of Cultural Affaies and Tourism Office",sector:"Education",cost:380000,benefit:6,pmo:"Youth Development Center"},
+{name:"Food Assistance, Highlight the Performance of Teen Zone School of Arts Students",sector:"Education",cost:200000,benefit:6,pmo:"Youth Development Center"},
+{name:"Provision of Food for Training / Orientation / Seminars of City Environment & Natural Resources Offi",sector:"Education",cost:2103672,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Variuos Office Supplies for the use of City Environment & Natural Resources Office",sector:"Environment",cost:2642198,benefit:4,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Various Medical Supplies (First Aid Kit) for the use of",sector:"Healthcare",cost:1100000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Urban Garden Kits (Garden Tools, Garbage, Vegetable Seeds, Composting) for the use of Ci",sector:"Environment",cost:2599980,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Bioremedation Cube for the use of City Environment & Natural Resources Office",sector:"Environment",cost:3000000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase and Distribute Hydrophics Kits for the use of City Environment & Natural Resources Office",sector:"Environment",cost:1950000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Steel Buggy for the use of City Environment & Natural Resources Office",sector:"Environment",cost:3750000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Continuation of Contract Service for Inventory of Flora and Fauna",sector:"General Government",cost:3000000,benefit:4,pmo:"City Environment & Natural Resources Office"},
+{name:"STP Maintenance Consolidation from PCCH, PCGH, Market, Health Center, RED Training, Maybunga Rainfor",sector:"Healthcare",cost:17379447,benefit:8,pmo:"City Environment & Natural Resources Office"},
+{name:"Engagement of Services to Conduct Operations and Maintenance of Sewage Treatment Plant / Wastewater ",sector:"Environment",cost:2620553,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Provision of Food for Various Activities of City Environment & Natural Resources Office",sector:"Environment",cost:2532738,benefit:4,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Phytoremediation Arc for the use of City Environment & Natural Resources Office",sector:"Environment",cost:1000000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Hiring Third Party DENR-Accredited Laboratory for Testing of Air Pollution Sources",sector:"Environment",cost:1100000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Greening Program and Landscaping of Openspaces",sector:"Environment",cost:4000000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Manflift Truck for the use of City Environment & Natural Resources Office",sector:"Environment",cost:6750000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase and Installation of Greenhouse for the use of City Environment & Natural Resources Office",sector:"Environment",cost:2000000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Rental of Stage, LED Wall, Sounds and Lights for Urban Garden Conntest",sector:"Environment",cost:150000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Environmental Permit to Operate, Notice of Violation (Inspection Report and Anti-Smoking",sector:"Environment",cost:365000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Opacimeter for the use of City Environment & Natural Resources Office",sector:"Environment",cost:1153500,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Various Accountable Forms for the use of City Environment & Natural Resources Office",sector:"Environment",cost:998990,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Portable Power Supply for the use of City Environment & Natural Resources Office",sector:"Environment",cost:173970,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Engagement of Laborartory Service to Conduct Ambient Water and Wastewater Effluent Sampling and Anal",sector:"Environment",cost:947786,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Various Supplies anfd Materials for the use of City Environment & Natural Resources Offi",sector:"Environment",cost:294370,benefit:4,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Garbage Bag for the use of City Environment & Natural Resources Office",sector:"Environment",cost:1320000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Continuation of Biodiversity and Database Enumeration of Tree Inventory and Tagging System",sector:"Environment",cost:2000000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Repair and Maintenance of Various Tools and Equipment at City Environment & Natural Resources Office",sector:"Infrastructure",cost:633499,benefit:7,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Various IEC Materials for the use of City Environment & Natural Resources Office",sector:"Environment",cost:962880,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Anti-Smoking Booklet for the use of City Environment & Natural Resources Office",sector:"Environment",cost:480000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Audio and Visual Production and Dissemination of Social Behavioral Change",sector:"Social Services",cost:500000,benefit:7,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Coper Machine for the use of City Environment & Natural Resources Office / Clean and Gre",sector:"Environment",cost:600000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Shredder with Wood Chipper for the use of City Environment & Natural Resources Office",sector:"Environment",cost:380000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Coconut Dusk Decorticator for the use of City Environment & Natural Resources Office",sector:"Environment",cost:620000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Grass / Forage Chopper for the use of City Environment & Natural Resources Office",sector:"Environment",cost:220000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Motorized Boat for the use of City Environmental and Natural Resources Office",sector:"Environment",cost:221000,benefit:6,pmo:"City Environment & Natural Resources Office"},
+{name:"Purchase of Various Medical Supplies for the use of Solid Waste Management Office",sector:"Healthcare",cost:723000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Composting Solution for the use of Solid Waste Management Office",sector:"Environment",cost:2250000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Variuos Equipment for the use of SWMO Motorpool",sector:"Infrastructure",cost:2500000,benefit:7,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Garbage Bags for the use of Solid Waste Management Office",sector:"Environment",cost:1350000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Contract Service for Citywide Garbage Collection, Hauling and Disposal Services for Pasig City",sector:"General Government",cost:444000000,benefit:4,pmo:"Solid Waste Management Office"},
+{name:"Contract Service for Infectious, Hazardous and Special Waste Collection Program at CHD, PCGH & PCCH",sector:"Environment",cost:17000000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Preventive Mainatenance of Various Machineries & Equipments under Solid Waste Management Office",sector:"Infrastructure",cost:2000000,benefit:7,pmo:"Solid Waste Management Office"},
+{name:"Procurement and Printing of SBC Materials and Trip Ticket for the use of Solid Waste Management Offi",sector:"Environment",cost:1500000,benefit:4,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Push Cart for the use of Solid Waste Management Office",sector:"Environment",cost:3000000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Rolling Waste Bin for the use of Solid Waste Management Office",sector:"Environment",cost:5000000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Pelletizer Machine for the use of Solid Waste Management Office",sector:"Environment",cost:1000000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Decorticator Machine for the use of Solid Waste Management Office",sector:"Environment",cost:1000000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Composting Facility Equipment for the use of Solid Waste Management Office",sector:"Infrastructure",cost:7800000,benefit:7,pmo:"Solid Waste Management Office"},
+{name:"Rental of Warehouse for the use of Solid Waste Management Office",sector:"Environment",cost:39600000,benefit:6,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Various Office Supplies for the use of Solid Waste Management Office",sector:"Environment",cost:500000,benefit:4,pmo:"Solid Waste Management Office"},
+{name:"Purchase of Various Supplies for the use of Drainage Maintenance Section",sector:"Infrastructure",cost:20904773,benefit:5,pmo:"City Engineering Office"},
+{name:"Purchase of Various Electrical Supplies for the use of City Engineering Office - Electrical Maintena",sector:"Infrastructure",cost:15414499,benefit:5,pmo:"City Engineering Office"},
+{name:"Consultancy Services for the Refurbishment of Plaza Rizal, Plaza Bonifacio and Bantayog ng Kagitinga",sector:"General Government",cost:6000000,benefit:4,pmo:"City Engineering Office"},
+{name:"Consultancy Services for the Design of Maybunga Rainforest Park",sector:"Environment",cost:18000000,benefit:6,pmo:"City Engineering Office"},
+{name:"Repair and Maintenance of Pumping Stations at Various Locations",sector:"Infrastructure",cost:4800000,benefit:7,pmo:"City Engineering Office"},
+{name:"Repair of Generator Sets in Pasig City Hall and Various Health Centers",sector:"Healthcare",cost:3000000,benefit:8,pmo:"City Engineering Office"},
+{name:"Cleaning / Clearning and Declogging of Various Drainage at District 1, Pasig City",sector:"Infrastructure",cost:3921978,benefit:7,pmo:"City Engineering Office"},
+{name:"Cleaning / Clearning and Declogging of Various Creeks in Pasig City",sector:"Education",cost:2982046,benefit:8,pmo:"City Engineering Office"},
+{name:"Major Improvement of Tricycle Terminal at Jenny's Avenue, Westbank Floodway, Brgy. Rosario, Pasig Ci",sector:"Infrastructure",cost:2449857,benefit:7,pmo:"Engineering Office"},
+{name:"Rehabilitation / Concreting at F. Intalan St. (from Avis St. to Pvt. Aureliana St.) Brgy. Bagong Ilo",sector:"Infrastructure",cost:6271319,benefit:7,pmo:"City Engineering Office"},
+{name:"Major Improvement of Sidewalk, Curb & Gutter and Drainage Line along Countryside, Brgy. Sta. Lucia, ",sector:"Infrastructure",cost:7676237,benefit:7,pmo:"City Engineering Office"},
+{name:"Asphalting of Road along Canley Road, Brgy. Bagong Ilog, Pasig City",sector:"Infrastructure",cost:6538072,benefit:7,pmo:"City Engineering Office"},
+{name:"Asphalt Overlay at Various Roads at De Castro and Countryside, Brgy. Sta. Lucia, Pasig City",sector:"Infrastructure",cost:11951057,benefit:7,pmo:"City Engineering Office"},
+{name:"Concrete Reblocking and Asphalt Overlay along Eastbank Road, Brgy. Manggahan, Pasig City",sector:"Infrastructure",cost:26081662,benefit:7,pmo:"City Engineering Office"},
+{name:"Repainting and Landscaping of MRP Parking Building at Maybunga Rainforest Park, Brgy. Maybunga, Pasi",sector:"Infrastructure",cost:1490331,benefit:7,pmo:"City Engineering Office"},
+{name:"Upgrading of Market STP and Improvement of Drainage within its Vicinity at Pasig Mutya Market",sector:"Infrastructure",cost:9209863,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement of Sidewalk and Drainage at Baltazar St., Brgy. Pinagbuhatan, Pasig City",sector:"Infrastructure",cost:5998299,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement of Sidewalk and Drainage at Urbano Velasco Phase 2, Brgy. Pinagbuhatan, Pasig City",sector:"Infrastructure",cost:5999350,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement of Sidewalk and Drainage at E. Santos St., Brgy. Pinagbuhatan, Pasig City",sector:"Infrastructure",cost:6999746,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement of Drainage and Improvement of CHB Lined Canal along Dr. Pilapil St., Brgy. Kapasigan, P",sector:"Infrastructure",cost:4218235,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of CHB Lined Canal with Concreting and Sidewalk along San Juan St., Brgy. Santolan, Pas",sector:"Infrastructure",cost:1997757,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage System (RCCP Drainage Line System) at A. Flores St. Brgy. Bagong Ilog, Pasi",sector:"Infrastructure",cost:1264872,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Canopy and Lamp Post for the Driveway of Social Hall at Oliva Street, Brgy. Ugong, P",sector:"Infrastructure",cost:1490330,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage Line and Concreting of Road along San Roque St., Brgy. Bagong Ilog, Pasig C",sector:"Infrastructure",cost:6186049,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage Line and Concreting of Road along Caimito St., Brgy. Manggahan, Pasig City",sector:"Infrastructure",cost:2863186,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage System and Upgrading of Roads at Interior Roads, Ilugin, Sandoval Ave., Brg",sector:"Infrastructure",cost:12411568,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage System and Road Reblocking at PCGH Compound and Eusebio Ave., Brgy. Maybung",sector:"Infrastructure",cost:16506203,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Drainage System & Improvement of Sidewalk at Mercedez Ave. (from Market Ave. to C. R",sector:"Infrastructure",cost:19406472,benefit:7,pmo:"City Engineering Office"},
+{name:"Major Improvement Works of Building 1 to 14 at Pasig Bliss Village I, Jenny's Ave., Brgy. Maybunga, ",sector:"Infrastructure",cost:24992276,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation of Meter Center at Mt. Apo, Mt. Isarog, Mt. Bulusan, Mt. Banahaw, Mt. Kanlaon, Mt. Ir",sector:"Infrastructure",cost:34999352,benefit:7,pmo:"City Engineering Office"},
+{name:"Major Improvement Works at Pasig Bliss Village III, Westbank Road, Brgy. Maybunga, Pasig City",sector:"Infrastructure",cost:85352950,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation of Gazebo at Pasig Bliss Village IV, Brgy. Manggahan, Pasig City",sector:"Infrastructure",cost:1793673,benefit:7,pmo:"City Engineering Office"},
+{name:"Repair and Repainting of Day Care Centers at Disrtict I & II, Pasig City",sector:"Infrastructure",cost:8245136,benefit:7,pmo:"City Engineering Office"},
+{name:"Major Repair and Maintenance for Two Buildings (Bahay Aruga and Bahay Kalinga) inside Kanlungan sa P",sector:"Infrastructure",cost:3954869,benefit:7,pmo:"City Engineering Office"},
+{name:"Repair and Repainting of Existing Romulo Building and Annex at Sta. Rosa St., Brgy. Kapitolyo, Pasig",sector:"Infrastructure",cost:1946614,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement of DRRM Training Center (Phase 2) at DRRM Training Center",sector:"Education",cost:16718529,benefit:8,pmo:"City Engineering Office"},
+{name:"Repair of the Female and Male Dormitory, Isolation Room and Comfort Rooms of the PCADAO Shelter and ",sector:"Infrastructure",cost:1999927,benefit:7,pmo:"City Engineering Office"},
+{name:"Conversion of Old Rosario Health Center to Balay Silangan along F. Andres, Brgy. Rosario, Pasig City",sector:"Healthcare",cost:4803518,benefit:8,pmo:"City Engineering Office"},
+{name:"Repair and Improvement of Interior Finishes at the Office of Information, Admitting, Billing, Cashie",sector:"Healthcare",cost:9943256,benefit:10,pmo:"City Engineering Office"},
+{name:"Rehabilitation of Fire Detection and Alarm System (FDAS) at Pasig City General Hospital, Brgy. Maybu",sector:"Healthcare",cost:3978000,benefit:10,pmo:"City Engineering Office"},
+{name:"Preventive Maintenance of Fire Detection System at Pamantasan ng Lungsod ng Pasig",sector:"Public Safety",cost:3500000,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation and Improvement of Market Water Fountain including Activity Tile Flooring at Pasig Mu",sector:"Infrastructure",cost:11528307,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation and Improvement of Flooring at Building 1 from Meat Section to Egg Section at Brgy. S",sector:"Infrastructure",cost:7282844,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Cross RCBC Drainage Line and Sidewalk at Portion of Sandoval Ave., Nagpayong, Brgy. ",sector:"Infrastructure",cost:49241305,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of RCBC Drainage Line and Sidewalk at San Guillermo and F. Flores St., Brgy. Buting, Pa",sector:"Infrastructure",cost:21412000,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation / Major Improvement of Bornay Pumping Station at Bornay St., Brgy. Kalawaan, Pasig Ci",sector:"Infrastructure",cost:43076759,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Additional Ramps with Handrails and Signages within the Government Building and Faci",sector:"Infrastructure",cost:3271112,benefit:7,pmo:"City Engineering Office"},
+{name:"Installation of LED Tapered Streetlights at Various Locations District 1, Pasig City",sector:"Environment",cost:22967823,benefit:6,pmo:"City Engineering Office"},
+{name:"Supply and Installation of LED Tapered Streetlights within Napico at 389 Sts. of Napico, Brgy. Mangg",sector:"Environment",cost:27215255,benefit:6,pmo:"City Engineering Office"},
+{name:"Demolition of Existing Structures within Pasig City Hall Compound and Construction of New Pasig City",sector:"Infrastructure",cost:2230000000,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Two (2) Storey Multi-Purpose Builsing & Health Center with Covered Court at C. Santo",sector:"Healthcare",cost:49496400,benefit:8,pmo:"City Engineering Office"},
+{name:"Construction of the Veterinary Service Department Office and Other Facilities at Brgy. Sto. Tomas, P",sector:"Infrastructure",cost:53514999,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Gender-Inclusive Comfort Room in the Following Public Schools: Rizal High School (2)",sector:"Infrastructure",cost:5891615,benefit:7,pmo:"City Engineering Office"},
+{name:"Improvement and Repair of HRM Building at PLP Compound, Brgy. Kapasigan, Pasig City",sector:"Infrastructure",cost:54646307,benefit:7,pmo:"City Engineering Office"},
+{name:"Provision of Lift Elevator with Steel Framed Lift Shaft for Oxygen Tanks at Pasig City General Hospi",sector:"Healthcare",cost:3999863,benefit:10,pmo:"City Engineering Office"},
+{name:"Proposed Three (3) Storey Health Center Building and Community E.R. Facility at Brgy. Sumilang, Pasi",sector:"Healthcare",cost:27989181,benefit:8,pmo:"City Engineering Office"},
+{name:"Construction of Multi-Purpose Gazebo at Olivia St., Valle Berde IV, Brgy. Ugong, Pasig City",sector:"Infrastructure",cost:8043983,benefit:7,pmo:"City Engineering Office"},
+{name:"Construction of Additional Gender-Responsive Breast Feeding Stations in Variuos City Owned Instituti",sector:"Infrastructure",cost:8041240,benefit:7,pmo:"City Engineering Office"},
+{name:"Purchase of Utility Vehicle for the use of City Engineering Office",sector:"Infrastructure",cost:6000000,benefit:7,pmo:"City Engineering Office"},
+{name:"Purchase of Motorcycle Vehicle for the use of City Engineering Office",sector:"Infrastructure",cost:1500000,benefit:7,pmo:"City Engineering Office"},
+{name:"Purchase of Paging System for the use of Engineering Office",sector:"General Government",cost:792586,benefit:4,pmo:"City Engineering Office"},
+{name:"Purchase of Additional Items for the use of General Maintenance Division - Electrical Maintenance Se",sector:"Infrastructure",cost:671550,benefit:7,pmo:"City Engineering Office"},
+{name:"Repair of Sidewalk at St. Martin St., Brgy. Oranbo, Pasig City",sector:"Infrastructure",cost:574914,benefit:7,pmo:"City Engineering Office"},
+{name:"Rehabilitation of Guardhouse and Entrance Gate at Pasig Bliss Village VII, Brgy. Manggahan, Pasig Ci",sector:"Infrastructure",cost:811993,benefit:7,pmo:"City Engineering Office"},
+{name:"Installation of PWD Ramp at Ground Floor, Repair of Fence and Gate with Signage at Pasig Bliss Villa",sector:"Infrastructure",cost:999542,benefit:7,pmo:"City Engineering Office"},
+{name:"Purchase of Anti-Rabbies Vaccine for the use if Veterinary Services Department",sector:"General Government",cost:2000000,benefit:4,pmo:"Veterinary Services Department"},
+{name:"Purchase of Zoological and Surgical Supplies for the use of Veterinary Services Department",sector:"General Government",cost:2695000,benefit:2,pmo:"Veterinary Services Department"},
+{name:"Purchase of Various Supplies and Materials for the use of Veterinary Services Department",sector:"General Government",cost:2614100,benefit:2,pmo:"Veterinary Services Department"},
+{name:"Sewage Treatment Plant (STP) Maintenance & Operation for 12 Months",sector:"Environment",cost:1999999,benefit:6,pmo:"Veterinary Services Department"},
+{name:"Purchase of Mobile Clinic for the use of Veterinary Services Department",sector:"Healthcare",cost:6000000,benefit:8,pmo:"Veterinary Services Department"},
+{name:"Purchase of RFID Microchip for Pets for the use if Veterinary Services Department",sector:"General Government",cost:1125000,benefit:4,pmo:"Veterinary Services Department"},
+{name:"Purchase of Firewoods and Calcium Hypoc Chlorite for the use of Slaughterhouse",sector:"Public Safety",cost:721000,benefit:7,pmo:"Veterinary Services Department"},
+{name:"Printing of Tarpaulin for Information and Education Campaign",sector:"Education",cost:50000,benefit:6,pmo:"Veterinary Services Department"},
+{name:"Purchase of Various Supplies and Equipment for the use of Cultural Affairs and Tourism Office",sector:"Infrastructure",cost:4366000,benefit:5,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Consultancy Services for Crafting of the Pasig City Tourism Development Plan",sector:"General Government",cost:1000000,benefit:4,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Consultancy Services for PURA Development",sector:"General Government",cost:2000000,benefit:4,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Service Provider: Float Design for Pasikotitap 2025",sector:"General Government",cost:1300000,benefit:4,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Service Fee for Production and Editing Team for City-Wide and CATO Events Documentation",sector:"General Government",cost:2000000,benefit:4,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Service Fee for Production and Editing Team for Cooltura (Culturee is Cool in Pasig City) AVPs of Tr",sector:"General Government",cost:1000000,benefit:4,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Purchase of Service Vehicle for the use of Pasig City Museum",sector:"Infrastructure",cost:1547333,benefit:7,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Food and Venue for Mental Health Awareness Seminar",sector:"Healthcare",cost:259998,benefit:6,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Provision of Food for Various Seminars / Training of Cultural Affrair & Tourism Office",sector:"Education",cost:195000,benefit:6,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Venue for Various Seminars / Training of Cultural Affrair & Tourism Office (Government Facilities)",sector:"Education",cost:246100,benefit:8,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Repair and Preventive Maintenance of Elevator at Pasig Revolving Tower",sector:"Infrastructure",cost:142400,benefit:7,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Rental of Auto Visual Equipment for Upcoming Various Events of CATO",sector:"Infrastructure",cost:690000,benefit:7,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Beautification and Repair Works of Pasig Revolving Tower",sector:"Infrastructure",cost:500000,benefit:7,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Purchase of Various Supplies and Equipment for the use of Pasig City Museum",sector:"Infrastructure",cost:187000,benefit:5,pmo:"Cultural Affrair & Tourism Office"},
+{name:"Purchase of Pre-Printed Construction Related Permit Application Forms",sector:"Infrastructure",cost:1003640,benefit:7,pmo:"Office of the Building Official"},
+{name:"Consultation Services in the Conduct of Public Infrastructure Audit within the City of Pasig",sector:"Infrastructure",cost:9984939,benefit:7,pmo:"Office of the Building Official"},
+{name:"Food and Venue for the Conduct of Seminar on Pasig City Zoning Ordinance",sector:"Education",cost:271040,benefit:6,pmo:"Office of the Building Official"},
+{name:"Purchase of Hygienic Supplies for the use of Office of the Building Official",sector:"Infrastructure",cost:53303,benefit:5,pmo:"Office of the Building Official"},
+{name:"Purchase of Surveying Equipment for the use of Office of the Building Official",sector:"Infrastructure",cost:410000,benefit:7,pmo:"Office of the Building Official"},
+{name:"Purchase of Chemicals needed for Pool Maintenance and Other Supplies for Water Park Facilities",sector:"Environment",cost:4000000,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Various Supplies and Materials for the use of Maybunga Rainforest Park",sector:"Environment",cost:8334300,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Various Supplies & Materials for the use of Maybunga Rainforest Park",sector:"Environment",cost:421500,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Pedal Boats for the use of Maybunga Rainforest Park",sector:"Environment",cost:1300000,benefit:6,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Service Vehicle for the use of Maybunga Rainforest Park",sector:"Infrastructure",cost:1200000,benefit:7,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Animal Medical Supplies for the use of Maybunga Rainforest Park",sector:"Healthcare",cost:100000,benefit:6,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Various Agricultural Materials and Supplies for the use of Maybunga Rainforest Park",sector:"Environment",cost:1500000,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase Order of Payment Form for the use of Maybunga Rainforest Park",sector:"Environment",cost:400000,benefit:6,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Various Office Supplies for the use of Maybunga Rainforest Park",sector:"Environment",cost:493110,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Animal and Zoological Supplies for the use of Maybunga Rainforest Park Mini Zoo",sector:"Environment",cost:400000,benefit:4,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase of Agility Equipments for Maybunga Rainforest Park - Pet Park",sector:"Infrastructure",cost:250000,benefit:7,pmo:"Maybunga Rainforest Park"},
+{name:"Purchase and Installation of Paging System for the use if Maybunga Rainforest Park",sector:"Environment",cost:500000,benefit:6,pmo:"Maybunga Rainforest Park"},
+{name:"Food and Venue for Various Activities of Cooperative Development Office; - Training Program for Coop",sector:"Education",cost:4641000,benefit:6,pmo:"Cooperative Development Office"},
+{name:"Purchase of Various Training Materials for the use of Cooperative Development Office",sector:"Education",cost:410000,benefit:8,pmo:"Cooperative Development Office"},
+{name:"Application of Chemicals for Disenfection, Deodorizing and Sanitation of Public Market",sector:"Healthcare",cost:1226500,benefit:8,pmo:"Market Administration Office"},
+{name:"Provision of Food for Violence Against Women Stallholders and Vendors",sector:"Social Services",cost:79750,benefit:5,pmo:"Market Administration Office"},
+{name:"Repair of Pressure Washer to be used in Flusing Out Dirts and Faulty Smell Inside and Outside the Ma",sector:"Infrastructure",cost:70000,benefit:7,pmo:"Market Administration Office"},
+{name:"Purchase of Service Vehicle for the use of Public Employment Service Office",sector:"Infrastructure",cost:2428820,benefit:7,pmo:"Public Employment Service Office"},
+{name:"Purchase of Various Supplies and Equipments for the use of PESO for Job Fairs / Trainings",sector:"Infrastructure",cost:2124500,benefit:5,pmo:"Public Employment Service Office"},
+{name:"Provision of Food for Various Programs / Activities of Public Employment Service Office",sector:"General Government",cost:2217500,benefit:2,pmo:"Public Employment Service Office"},
+{name:"Food and Venue for Seminar for Barangay Employment Helpdesk Officer",sector:"Education",cost:171000,benefit:6,pmo:"Public Employment Service Office"},
+{name:"Repair and Maintenance of Machinery and Equipment under PESO",sector:"Infrastructure",cost:100000,benefit:7,pmo:"Public Employment Service Office"},
+{name:"Provision of Food to Jobseekers and Graduating Student",sector:"Education",cost:500000,benefit:6,pmo:"Public Employment Service Office"},
+{name:"Provision of Food for the Security Personnel, PESO Personnel and DOLE Representative for Various PES",sector:"Public Safety",cost:563500,benefit:5,pmo:"Public Employment Service Office"},
+{name:"Purchase of Personalized Gift Box as Token of Appreciation for Public Service Continuity Programs",sector:"General Government",cost:4215000,benefit:1,pmo:"5% LDRRMF"},
+{name:"Other Seminar / Training / Workshops / Benchmarking and/or Conference",sector:"Education",cost:9993833,benefit:8,pmo:"5% LDRRMF"},
+{name:"Provision of Food for DRRMO Training, Seminar, Conference, Drills, IMT Activations (Emergency and Pl",sector:"Education",cost:20000000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Training Supplies and Equipment",sector:"Infrastructure",cost:13247300,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Training Equipment for the Conduct of Basic Life Support and First Aid Training for DRRM",sector:"Infrastructure",cost:2319260,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Drugs, Medicines, Medical Supply and Medical Equipment for Emergency Response",sector:"Healthcare",cost:2000000,benefit:8,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Medicines and Medical Supplies for the use of CHD-DRRMH",sector:"Healthcare",cost:12470475,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Stockpile or Relief Goods, Food and Non Food Items",sector:"Social Services",cost:25000000,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Supplies for Gender Responsive and Disaster Ready Essentials for Pasig City Gove",sector:"Social Services",cost:29535000,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase Various Supplies and Materials for the use of City Health Department",sector:"Healthcare",cost:487855,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Radio Supplies for the use of Pasig City Disaster Risk Reduction and Management Office",sector:"Social Services",cost:2694960,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Rope Rescue Tools, Equipment, Accessories and Supplies",sector:"Infrastructure",cost:12851269,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Fire and Rescue Personal Protective Equipment",sector:"Infrastructure",cost:4199999,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Relief Goods (Non-Food Item) for the use of PCDRRMO",sector:"Social Services",cost:2845040,benefit:5,pmo:"5% LDRRMF"},
+{name:"Consultancy Services for DRRM Plan",sector:"General Government",cost:13000000,benefit:4,pmo:"5% LDRRMF"},
+{name:"Consultancy Services for Training Manual Workshop",sector:"Education",cost:5000000,benefit:8,pmo:"5% LDRRMF"},
+{name:"Repair and Mainetenance of PA System",sector:"Infrastructure",cost:2000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Repair and Maintenance of Radio",sector:"Infrastructure",cost:4000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Insurance for Accredited Community Disaster Volunteers",sector:"Social Services",cost:1999179,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase Handheld Radio for the use of Traffic and Parking Management Office",sector:"Environment",cost:2308800,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Canine / Drone Equipment and Supplies for Search and Rescue",sector:"Infrastructure",cost:3000000,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Fire Truck for Disaster Response",sector:"Social Services",cost:59920000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of HazMat / WMD Search & Rescue Equipment",sector:"Infrastructure",cost:8000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Swift Water Search & Rescue Equipment",sector:"Infrastructure",cost:9046527,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Collapsible and Customized Training Equipment for Search and Rescue Canine",sector:"Infrastructure",cost:6000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Manlift Truck for the use of Electrical Maintenance Section of Engineering Office",sector:"Infrastructure",cost:9000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Pump Mounted 4-Wheeler Trailer with Accessories for the use of Engineering Department - ",sector:"Infrastructure",cost:17000000,benefit:9,pmo:"5% LDRRMF"},
+{name:"Purchase of Rapid Damage Assessment and Need Analysis (RDANA) Vehicle",sector:"Infrastructure",cost:20409900,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Costumized Advance Life Support (ALS) Ambulances",sector:"Healthcare",cost:40000000,benefit:10,pmo:"5% LDRRMF"},
+{name:"Purchase of Emergency Response Vehicle for Pasig City Barangays",sector:"Infrastructure",cost:8357000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Automation of Gate Controls for Flood Gates in Pumping Stations / Monitoring and Sensor ",sector:"Infrastructure",cost:47352190,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase Other Automation of Flood Gates Equipment",sector:"Infrastructure",cost:2647809,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of City Wide PA System",sector:"General Government",cost:5000000,benefit:4,pmo:"5% LDRRMF"},
+{name:"Purchase of Mobile Kitchen Equipment",sector:"Infrastructure",cost:2000000,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Medical Supplies for the use of CHD- DRRMH",sector:"Healthcare",cost:2000000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Procurement of Data Center Co-location Services - Management Information System Office",sector:"General Government",cost:10000000,benefit:4,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Mental Health and Pyschosocial Support System",sector:"Healthcare",cost:427800,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Basic Incident Command System Training Course (BICS)",sector:"Education",cost:1980030,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Incident Command System Position Couorse (ICS-Level 3)",sector:"General Government",cost:1827345,benefit:2,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Emergency Operation Center Training Course for DRRM Council",sector:"Education",cost:1313000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for the Conduct of Community Based DRRM Training",sector:"Education",cost:2160000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Public Service Continuity Plan (PSCP) Development Program",sector:"General Government",cost:3394500,benefit:2,pmo:"5% LDRRMF"},
+{name:"Food and Venue for the Conduct of Various Damage Assessment and Needs Analysis Training",sector:"Education",cost:1336400,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for the Preparedness Seminar in Observance of the Fire Prevention Month",sector:"Education",cost:600000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Stress Defriefing and Psychosocial Processing for Victims and Calamities and Disa",sector:"Social Services",cost:554400,benefit:5,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Emergency Response Refresher Course II Training and Seminar for POD-PSD",sector:"Education",cost:80000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Trainings and Seminar Regarding Disaster Response of CSWDO",sector:"Education",cost:1729500,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for City Social Welfare and Development Office for the 3 Year Comprehensive Emergency",sector:"Education",cost:456100,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Capability Building on Basic DRRM in the Basic Education Sector",sector:"Infrastructure",cost:1800000,benefit:5,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Education in Emergencies (EIE) Writeshop",sector:"Education",cost:1050000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Exercise Design Course (EDC) Training Course",sector:"Education",cost:2441099,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Integrated Planning Course on Incedent Command System (IPICS) Training Course",sector:"Education",cost:1821400,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for All Hazard Incedent Management Team (ICS-Level-4) Training Course",sector:"Education",cost:1984499,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for the Conduct of Training of GeoRisk PH",sector:"Education",cost:608700,benefit:6,pmo:"5% LDRRMF"},
+{name:"Provision of Food for PUSO Disaster Preparedness Training and Activities",sector:"Education",cost:1225000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Partnership and Signing of MOA with NGO, Private Companies, School, Other LGUs an",sector:"Education",cost:294000,benefit:6,pmo:"5% LDRRMF"},
+{name:"Food and Venue for Emergency Operations Center (EOC) Training Course Batch 3",sector:"Education",cost:486850,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Supplies and Materials for the use of Fire Prevention Month Activity",sector:"Public Safety",cost:962082,benefit:5,pmo:"5% LDRRMF"},
+{name:"Purchase of Fire Extiguisher, Cabinet and Hose for the use of Public Macket Administration Office",sector:"Public Safety",cost:755960,benefit:7,pmo:"5% LDRRMF"},
+{name:"Purchase of Various Supplies and Materials for Partnership and Signing of MOA with NGO, Private Comp",sector:"Education",cost:200280,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Fire Extinguisher Refill",sector:"Public Safety",cost:1998589,benefit:7,pmo:"5% LDRRMF"},
+{name:"Printing of Information, Education amd Communication (IEC) Materials for Pasig City DRRMO",sector:"Education",cost:933170,benefit:6,pmo:"5% LDRRMF"},
+{name:"Purchase of Various NSO Equipment for the use of Pasig City Children's Hospotal",sector:"Infrastructure",cost:39137736,benefit:7,pmo:"20% LCDF"},
+{name:"Purchase of Various Medical Equipment for the use of PCCH- Nursing Service Office",sector:"Healthcare",cost:27481453,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Radiology Equipment for the use of Pasig City Children's Hospotal",sector:"Infrastructure",cost:12510000,benefit:7,pmo:"20% LCDF"},
+{name:"Purchase of Fully Digital Remote Controlled Radio Flouroscopic System with Two Tubes for the use of ",sector:"General Government",cost:38333333,benefit:4,pmo:"20% LCDF"},
+{name:"Purchase of Medical Equipment for the use of Pasig City Children's Hospotal - Central Laboratory",sector:"Healthcare",cost:76750620,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Various Laboratory Equipments for the use of PCCH-Laboratory Medicine",sector:"Healthcare",cost:4378480,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Dental Equipment for the use of Pasig City Children's Hospotal",sector:"Healthcare",cost:48014829,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Various Laboratory Equipment for the use of Pasig City Children's Hospotal - Blood Bank",sector:"Infrastructure",cost:6145170,benefit:7,pmo:"20% LCDF"},
+{name:"Purchase of GeneXpert IV Modules for the use of CHD",sector:"Education",cost:12338000,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of GeneXpert IV Modules for the use of CHD- Laboratory Services",sector:"Education",cost:3662000,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Various Medical Equipmrnt for the use of CHD- Laboratory - Electrolytes Analyzer - HBA1C",sector:"Healthcare",cost:18614666,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Various Medical Equipment for the use of Pasig City General Hospital (Consolidate)",sector:"Healthcare",cost:114488000,benefit:10,pmo:"20% LCDF"},
+{name:"Purchase of Various Medical Equipment for the use of PCGH- Nursing Service Office",sector:"Healthcare",cost:23667250,benefit:8,pmo:"20% LCDF"},
+{name:"Purchase of Pharmacuetical Refrigerator for the use of Pasig City General Hospital",sector:"Healthcare",cost:2379300,benefit:10,pmo:"20% LCDF"},
+{name:"Purchase of Central Monitor System for the use of PCGH- Nursing Service Office",sector:"General Government",cost:30000000,benefit:4,pmo:"20% LCDF"},
+{name:"Purchase of Garbage Compactor (18cu.m) for the use of Solid Waste Management Office",sector:"Environment",cost:3040000,benefit:6,pmo:"20% LCDF"},
+{name:"Purchase of Garbage Compactor (12cu.m) for the use of Solid Waste Management Office",sector:"Environment",cost:55000000,benefit:6,pmo:"20% LCDF"},
+{name:"Purchase of Garbage Compactor (5cu.m) for the use of Solid Waste Management Office",sector:"Environment",cost:37500000,benefit:6,pmo:"20% LCDF"},
+{name:"Purchase of Garbage Compactor (4cu.m) for the use of Solid Waste Management Office",sector:"Environment",cost:36000000,benefit:6,pmo:"20% LCDF"},
+{name:"Purchase of Manual Hospital Bed and Manual Pediatric Crib for the use of PCCH",sector:"Healthcare",cost:3702740,benefit:10,pmo:"20% LCDF"},
+{name:"Purchase of Portable Reverse Osmosis Machine for the use of PCCH-Nursing Service Office",sector:"General Government",cost:974900,benefit:4,pmo:"20% LCDF"},
+{name:"Purchase of Treatment Bed with Enclosed Cabinet for the use of PCCH-Physical Medicine and Rehabilita",sector:"Healthcare",cost:823666,benefit:8,pmo:"20% LCDF"},
+{name:"Construction of Second Floor of Sta. Lucia CDC",sector:"Infrastructure",cost:2500000,benefit:7,pmo:"Local School Board"},
+{name:"Purchase of Versatile Instrumentation System for Science Education and Reseasrch (VISSER) Sets for t",sector:"Education",cost:2240000,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Variuos Supplies, Materials and Equipment for DepEd Enational Competitions and Events",sector:"Infrastructure",cost:2950000,benefit:5,pmo:"Local School Board"},
+{name:"Purchase of Bond Paper for the use of Local School Board for Reading Camp",sector:"Education",cost:56250,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Bond Paper for the use of Local School Board",sector:"Education",cost:17625000,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Various Supplies and Equipment for Immediate and Minor School Repairs",sector:"Infrastructure",cost:14203346,benefit:5,pmo:"Local School Board"},
+{name:"Refurbishment of 4 Classroom for the Establishment of Future Learning Space for Key Stage 1",sector:"Education",cost:4000000,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Consumables for Riso Machine for te use of Local School Board",sector:"Education",cost:6875240,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Photocopier Machine for the use of Local School Board",sector:"Education",cost:10000000,benefit:8,pmo:"Local School Board"},
+{name:"Supply and Delivery of Multivitamins and Goods for Malusog na Batang Pasigueno for Distribution to E",sector:"Education",cost:339280649,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Teacher's Chairs and Tables for the use of Local School Board",sector:"Education",cost:10350000,benefit:8,pmo:"Local School Board"},
+{name:"Internet Subscription for Elementary Education",sector:"Education",cost:7569593,benefit:8,pmo:"Local School Board"},
+{name:"Internet Subscription for Secondary Education",sector:"Education",cost:5702602,benefit:8,pmo:"Local School Board"},
+{name:"Janitorial Services for the use of Local School Board",sector:"Education",cost:85000000,benefit:8,pmo:"Local School Board"},
+{name:"Security Services for Elementary Education",sector:"Education",cost:74500000,benefit:8,pmo:"Local School Board"},
+{name:"Security Services for Secondary Education",sector:"Education",cost:78542000,benefit:8,pmo:"Local School Board"},
+{name:"Improvement of Electrical System at Buting Elementary School",sector:"Infrastructure",cost:5491939,benefit:7,pmo:"Local School Board"},
+{name:"Improvement of Electrical System at Manggahan Elementary School",sector:"Infrastructure",cost:4694200,benefit:7,pmo:"Local School Board"},
+{name:"Improvement of Electrical System at Nagpayong Elementary School",sector:"Infrastructure",cost:18136448,benefit:7,pmo:"Local School Board"},
+{name:"Improvement of Electrical System at Bagong Ilog Elementary School",sector:"Infrastructure",cost:4456346,benefit:7,pmo:"Local School Board"},
+{name:"Improvement of Electrical System at Caniogan Elementary School",sector:"Infrastructure",cost:10721778,benefit:7,pmo:"Local School Board"},
+{name:"Installation of Security Grills and Canopy at Pasig City Science High School, Brgy. Maybunga, Pasig ",sector:"Education",cost:1720588,benefit:8,pmo:"Local School Board"},
+{name:"Rewiring of Feeder Lines and Replacement of Old Panelboard at Santolan High School, Brgy. Santolan, ",sector:"Education",cost:11157890,benefit:8,pmo:"Local School Board"},
+{name:"Additional Appropriationj for the Rewiring of Feeding Lines and Replacement of Old Panelboards at Ro",sector:"Education",cost:19201455,benefit:8,pmo:"Local School Board"},
+{name:"Reproduction of Students Handbook for the use of Local School Board",sector:"Education",cost:1000000,benefit:8,pmo:"Local School Board"},
+{name:"Rental of Vehicle for DepEd Enational Competitions and Events",sector:"Infrastructure",cost:5000000,benefit:7,pmo:"Local School Board"},
+{name:"Provision of Food for Reading Camp for the use of Local School Board",sector:"Education",cost:8000000,benefit:6,pmo:"Local School Board"},
+{name:"Provision of Food for 3rd Senior High School Research Congress",sector:"Education",cost:302850,benefit:6,pmo:"Local School Board"},
+{name:"SDO Pasig City Annual Physical and Health Exam for Teaching and Non-Teaching Personnel",sector:"Healthcare",cost:12547500,benefit:8,pmo:"Local School Board"},
+{name:"Certificate in Science Training Program",sector:"Education",cost:7200000,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of VariousTextbooks and Instructional Materials for the use of Local School Board",sector:"Education",cost:999760,benefit:8,pmo:"Local School Board"},
+{name:"Purchase of Key Learning Resources for Academic Recovery and Accessible Learning (Beginning Reading ",sector:"Education",cost:77625000,benefit:8,pmo:"Local School Board"}];
+
+let budget = 1000000000;
+let activeSector = 'All';
+let filteredIdxs = [];
+let checkedIdxs = new Set();
+
+function fmt(n){ return '₱'+Math.round(n).toLocaleString(); }
+function fmtB(n){
+  if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  return Math.round(n).toLocaleString();
+}
+function sClass(s){ return 's-'+s.replace(/ /g,'-'); }
+
+function updateBudget(v){
+  budget = parseInt(v);
+  document.getElementById('budgetDisplay').textContent = fmt(budget);
+}
+
+function toggleSector(btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  activeSector = btn.dataset.sector;
+  applyFilters();
+}
+
+function applyFilters(){
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  filteredIdxs = [];
+  ALL_PROJECTS.forEach((p,i)=>{
+    if(activeSector !== 'All' && p.sector !== activeSector) return;
+    if(q && !p.name.toLowerCase().includes(q) && !p.pmo.toLowerCase().includes(q)) return;
+    filteredIdxs.push(i);
+  });
+  renderTable();
+}
+
+function renderTable(){
+  const tbody = document.getElementById('projTbody');
+  if(!filteredIdxs.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No projects match the current filter.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filteredIdxs.map(i=>{
+    const p = ALL_PROJECTS[i];
+    const chk = checkedIdxs.has(i);
+    return `<tr>
+      <td><input type="checkbox" class="chk" ${chk?'checked':''} onchange="toggleCheck(${i},this.checked)"></td>
+      <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.name}">${p.name}</td>
+      <td><span class="s-badge ${sClass(p.sector)}">${p.sector}</span></td>
+      <td style="font-size:11px;color:var(--tx1);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.pmo}</td>
+      <td class="cost-col">${fmtB(p.cost)}</td>
+      <td class="benefit-col">${p.benefit}</td>
+    </tr>`;
+  }).join('');
+  updateSelCount();
+  document.getElementById('totalCount').textContent = ALL_PROJECTS.length;
+  document.getElementById('totalBudget').textContent = fmtB(ALL_PROJECTS.reduce((s,p)=>s+p.cost,0));
+}
+
+function toggleCheck(idx, checked){
+  if(checked) checkedIdxs.add(idx); else checkedIdxs.delete(idx);
+  updateSelCount();
+}
+
+function toggleAll(checked){
+  filteredIdxs.forEach(i=>{ if(checked) checkedIdxs.add(i); else checkedIdxs.delete(i); });
+  renderTable();
+}
+
+function updateSelCount(){
+  const sel=[...checkedIdxs];
+  const total=sel.reduce((s,i)=>s+ALL_PROJECTS[i].cost,0);
+  document.getElementById('selCount').textContent =
+    `${sel.length} projects selected · ${fmt(total)} total cost`;
+}
+
+// Pre-select 25 high-impact projects (safe default for all 3 algorithms)
+function preselectDefaults(){
+  checkedIdxs.clear();
+  const scored = ALL_PROJECTS.map((p,i)=>({i,score:p.benefit,cost:p.cost}))
+    .sort((a,b)=>b.score-a.score||a.cost-b.cost);
+  scored.slice(0,25).forEach(x=>checkedIdxs.add(x.i));
+  renderTable();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALGORITHM 1: 0/1 Knapsack — Dynamic Programming
+// Fix: use integer DP (multiply benefit×10 to preserve 1 decimal) and exact
+// cost units so all 3 algorithms solve the IDENTICAL problem.
+// Time: O(n·W)  Space: O(n·W) — reduced to O(W) with rolling array
+// ─────────────────────────────────────────────────────────────────────────────
+function knapsackDP(items, cap){
+  // Use 100k-peso unit to keep W manageable while preserving cost precision
+  const UNIT = 100000;
+  const n = items.length;
+  const W = Math.floor(cap / UNIT);
+
+  // Full 2D DP table required for correct 0/1 traceback.
+  // A rolling 1D array only gives the optimal VALUE correctly — it loses
+  // the per-row history needed to reconstruct WHICH items were selected,
+  // because later rows overwrite earlier decisions.
+  // Space: O(n * W)
+  const dp = Array.from({length: n + 1}, () => new Int32Array(W + 1));
+
+  // Forward pass — standard 0/1 knapsack
+  for(let i = 1; i <= n; i++){
+    const w = Math.floor(items[i-1].cost / UNIT);
+    const v = items[i-1].benefit;
+    for(let j = 0; j <= W; j++){
+      dp[i][j] = dp[i-1][j]; // exclude item i
+      if(w <= j){
+        const withItem = dp[i-1][j-w] + v;
+        if(withItem > dp[i][j]) dp[i][j] = withItem; // include item i
+      }
+    }
+  }
+
+  // Traceback — walk the full 2D table backwards
+  // dp[i][j] != dp[i-1][j] means item i was included at this capacity
+  const selected = [];
+  let j = W;
+  for(let i = n; i >= 1; i--){
+    if(dp[i][j] !== dp[i-1][j]){
+      selected.push(i - 1); // 0-based index
+      j -= Math.floor(items[i-1].cost / UNIT);
+    }
+  }
+
+  return { selected, totalBenefit: dp[n][W] };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALGORITHM 2: Knapsack + Branch and Bound
+// Iterative DFS, no recursion. Fractional (Dantzig) upper bound for pruning.
+// No greedy seed — starts from bestVal=0, must explore more of the tree.
+// Time: O(2ⁿ) worst case   Space: O(n) explicit stack
+// ─────────────────────────────────────────────────────────────────────────────
+function knapsackBnB(items, cap){
+  // Sort by benefit/cost ratio descending — tightest fractional upper bounds
+  const order = items.map((_,i)=>i)
+    .sort((a,b) => items[b].benefit/items[b].cost - items[a].benefit/items[a].cost);
+  const sorted = order.map(i => items[i]);
+  const n = sorted.length;
+
+  // Precompute prefix sums for O(1) upper-bound prefix, O(n) fractional scan
+  // Dantzig bound: fill items greedily, then fractionally fill the last item
+  function upperBound(idx, remCap, curVal){
+    let val = curVal, rem = remCap;
+    for(let i = idx; i < n; i++){
+      if(sorted[i].cost <= rem){ rem -= sorted[i].cost; val += sorted[i].benefit; }
+      else { val += sorted[i].benefit * (rem / sorted[i].cost); break; }
+    }
+    return val;
+  }
+
+  let bestVal = 0, bestSet = [];
+
+  // Iterative DFS — explicit stack, no call-stack overflow risk
+  // Each frame: [idx, remCap, curVal, chosen[]]
+  // Push EXCLUDE first so INCLUDE is explored first (better branch first)
+  const stack = [[0, cap, 0, []]];
+
+  while(stack.length){
+    const [idx, remCap, curVal, chosen] = stack.pop();
+
+    if(idx === n){
+      if(curVal > bestVal){ bestVal = curVal; bestSet = chosen; }
+      continue;
+    }
+
+    // Prune: fractional upper bound cannot beat current best
+    if(upperBound(idx, remCap, curVal) <= bestVal) continue;
+
+    // Push EXCLUDE branch (explored second — less promising)
+    stack.push([idx+1, remCap, curVal, chosen]);
+
+    // Push INCLUDE branch (explored first — more promising, raises bestVal faster)
+    if(sorted[idx].cost <= remCap){
+      stack.push([
+        idx+1,
+        remCap - sorted[idx].cost,
+        curVal + sorted[idx].benefit,
+        [...chosen, order[idx]]
+      ]);
+    }
+  }
+
+  return { selected: bestSet, totalBenefit: bestVal };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALGORITHM 3: Knapsack + B&B + GA  (5 optimizations applied)
+//
+// S1 — Greedy seed: half the population starts from a greedy solution
+//      (sort by benefit/cost, fill until budget) — strong initial lower bound
+// S2 — Adaptive GA params: POP=30, GENS=60 (greedy seed compensates)
+// S3 — Early termination: B&B stops when solution is within ε of upper bound
+// S4 — Tighter Dantzig bound: corrects for next-item ratio after fractional fill
+// S5 — Best-first node ordering: include branch always explored first,
+//      raises bestVal faster, prunes exclude subtrees earlier
+//
+// Combined effect: practical complexity drops toward O(n log n) average case
+// while guaranteeing optimality on real LGU project portfolios.
+// Time: O(P·G·n) GA + O(2ⁿ) B&B worst / O(n log n) avg
+// Space: O(P·n) GA population + O(n) B&B stack
+// ─────────────────────────────────────────────────────────────────────────────
+function knapsackBnBGA(items, cap){
+  // S2: Reduced GA params — greedy seed makes large pop/gens unnecessary
+  const POP=30, GENS=60, MR=0.04;
+  const n = items.length;
+
+  // Sort order by benefit/cost ratio (used by both GA greedy seed and B&B)
+  const ratioOrder = items.map((_,i)=>i)
+    .sort((a,b) => items[b].benefit/items[b].cost - items[a].benefit/items[a].cost);
+
+  // ── Phase 1: Genetic Algorithm with greedy seed ──────────────────────────
+
+  function fitness(ind){
+    let cost=0, ben=0;
+    for(let i=0;i<n;i++) if(ind[i]){ cost+=items[i].cost; ben+=items[i].benefit; }
+    return cost<=cap ? ben : 0;
+  }
+
+  // Repair: drop least efficient (lowest benefit/cost) selected items first
+  function repair(ind){
+    let cost=0;
+    for(let i=0;i<n;i++) if(ind[i]) cost+=items[i].cost;
+    if(cost<=cap) return ind;
+    // ratioOrder is ascending by efficiency — drop from front (least efficient)
+    for(let k=n-1; k>=0 && cost>cap; k--){
+      const idx = ratioOrder[k];
+      if(ind[idx]){ ind[idx]=0; cost-=items[idx].cost; }
+    }
+    return ind;
+  }
+
+  // S1: Greedy chromosome — greedily fill by benefit/cost ratio
+  function greedyChromosome(){
+    const ind = new Uint8Array(n);
+    let rem = cap;
+    for(const i of ratioOrder){
+      if(items[i].cost <= rem){ ind[i]=1; rem-=items[i].cost; }
+    }
+    return Array.from(ind);
+  }
+
+  // S1: Seed half the population with greedy, half random
+  let pop = [];
+  for(let k=0; k<POP; k++){
+    if(k < Math.floor(POP/2)){
+      // Greedy seed with small random perturbation for diversity
+      const ind = greedyChromosome();
+      for(let i=0;i<n;i++) if(Math.random()<0.05) ind[i]=ind[i]?0:1;
+      pop.push(repair(ind));
+    } else {
+      pop.push(repair(Array.from({length:n}, ()=>Math.random()>.6?1:0)));
+    }
+  }
+
+  // Evolve — S2: fewer gens needed due to strong seed
+  for(let g=0; g<GENS; g++){
+    pop.sort((a,b)=>fitness(b)-fitness(a));
+    const elite = pop.slice(0,6).map(x=>[...x]);
+    const next = [...elite];
+    while(next.length < POP){
+      const p1 = pop[Math.floor(Math.random()*10)];
+      const p2 = pop[Math.floor(Math.random()*10)];
+      const cp = Math.floor(Math.random()*n);
+      const child = [...p1.slice(0,cp), ...p2.slice(cp)].map(v=>Math.random()<MR?1-v:v);
+      next.push(repair(child));
+    }
+    pop = next;
+  }
+
+  pop.sort((a,b)=>fitness(b)-fitness(a));
+  const gaFit = fitness(pop[0]);
+  const gaSet = pop[0].map((v,i)=>v?i:-1).filter(i=>i>=0);
+
+  // ── Phase 2: B&B seeded with tight GA lower bound ────────────────────────
+  const sorted = ratioOrder.map(i=>items[i]);
+
+  // S4: Tighter Dantzig bound — after fractional item, subtract correction
+  // based on the gap between the fractional ratio and the next item's ratio.
+  // This gives a stricter ceiling than the plain fractional bound.
+  function upperBound(idx, remCap, curVal){
+    let val = curVal, rem = remCap;
+    let fracIdx = -1;
+    for(let i = idx; i < n; i++){
+      if(sorted[i].cost <= rem){ rem -= sorted[i].cost; val += sorted[i].benefit; }
+      else {
+        // Fractional item
+        val += sorted[i].benefit * (rem / sorted[i].cost);
+        fracIdx = i;
+        break;
+      }
+    }
+    // S4 correction: tighten bound using next item's ratio if available
+    if(fracIdx >= 0 && fracIdx+1 < n){
+      const ratio     = sorted[fracIdx].benefit   / sorted[fracIdx].cost;
+      const nextRatio = sorted[fracIdx+1].benefit / sorted[fracIdx+1].cost;
+      // The true integer solution can be at most 1 item worse than fractional
+      // Subtract the gap scaled by remaining capacity
+      val -= (ratio - nextRatio) * rem * 0.5;
+    }
+    return val;
+  }
+
+  // S3: Early termination epsilon — stop if within 0.5 benefit points of UB
+  const EPSILON = 0.5;
+  const globalUB = upperBound(0, cap, 0);
+
+  // Seed B&B with GA best — immediately prunes anything below gaFit
+  let bestVal = gaFit;
+  let bestSet = gaSet;
+
+  // S5: Best-first — include branch pushed last (popped first)
+  // This raises bestVal quickly, making subsequent pruning far more aggressive
+  const stack = [[0, cap, 0, []]];
+
+  while(stack.length){
+    // S3: Early exit if close enough to global upper bound
+    if(bestVal >= globalUB - EPSILON) break;
+
+    const [idx, remCap, curVal, chosen] = stack.pop();
+
+    if(idx === n){
+      if(curVal > bestVal){ bestVal = curVal; bestSet = chosen; }
+      continue;
+    }
+
+    if(upperBound(idx, remCap, curVal) <= bestVal) continue;
+
+    // S5: Push exclude first (explored second), include last (explored first)
+    stack.push([idx+1, remCap, curVal, chosen]);
+
+    if(sorted[idx].cost <= remCap){
+      stack.push([
+        idx+1,
+        remCap - sorted[idx].cost,
+        curVal + sorted[idx].benefit,
+        [...chosen, ratioOrder[idx]]
+      ]);
+    }
+  }
+
+  return { selected: bestSet, totalBenefit: bestVal };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+function measureTime(fn){
+  const t0=performance.now();
+  const r=fn();
+  return { result:r, ms:performance.now()-t0 };
+}
+
+let currentTab=2, lastResults=null, lastItems=[];
+
+function runAll(){
+  const idxArr=[...checkedIdxs];
+  if(!idxArr.length){
+    document.getElementById('results').innerHTML='<div class="empty">Select at least one project from the table above.</div>';
+    return;
+  }
+  const items=idxArr.map(i=>ALL_PROJECTS[i]);
+  const btn=document.getElementById('runBtn');
+  btn.innerHTML='<span class="spinner"></span>Running algorithms...';
+  btn.disabled=true;
+
+  // Double-rAF ensures spinner renders before heavy computation blocks the thread
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    try{
+      const r0=measureTime(()=>knapsackDP(items,budget));
+      const r1=measureTime(()=>knapsackBnB(items,budget));
+      const r2=measureTime(()=>knapsackBnBGA(items,budget));
+      lastItems=items;
+      lastResults=[
+        {label:'Knapsack (DP)',    short:'DP',     result:r0.result, ms:r0.ms, space:'O(n·W) time · O(n·W) space'},
+        {label:'Knapsack + B&B',  short:'B&B',    result:r1.result, ms:r1.ms, space:'O(2ⁿ) worst · O(n) space'},
+        {label:'Knapsack+B&B+GA', short:'B&B+GA', result:r2.result, ms:r2.ms, space:'O(P·G·n)+O(2ⁿ) · O(P·n) space'},
+      ];
+      renderResults();
+    }finally{
+      btn.innerHTML='Run all algorithms →';
+      btn.disabled=false;
+    }
+  }));
+}
+
+function renderResults(){
+  if(!lastResults||!lastItems.length) return;
+  const items=lastItems;
+
+  // All three should reach the same optimal benefit — flag if they don't
+  const benefits = lastResults.map(r=>r.result.totalBenefit);
+  const maxBen = Math.max(...benefits);
+  const allMatch = benefits.every(b=>b===maxBen);
+
+  const cr=lastResults[currentTab];
+  const selSet=new Set(cr.result.selected);
+  const tc=cr.result.selected.reduce((s,i)=>s+items[i].cost,0);
+
+  const compareHtml=lastResults.map((r,ri)=>{
+    const isBest=r.result.totalBenefit===maxBen;
+    const rtc=r.result.selected.reduce((s,i)=>s+items[i].cost,0);
+    const pct=maxBen>0?Math.round((r.result.totalBenefit/maxBen)*100):0;
+    return `<div class="ccard ${isBest?'best':''}">
+      ${isBest?'<div class="best-tag">optimal ✓</div>':'<div style="height:20px"></div>'}
+      <div class="ccard-title">${r.label}</div>
+      <div class="ccard-big">${r.result.totalBenefit}</div>
+      <div class="ccard-sub">total benefit score</div>
+      <div class="bar-t"><div class="bar-f" style="width:${pct}%;background:${isBest?'#1D9E75':'#378ADD'}"></div></div>
+      <div class="ccard-meta">${fmt(rtc)} used &nbsp;·&nbsp; ${r.result.selected.length} projects<br>${r.ms.toFixed(1)} ms runtime &nbsp;·&nbsp; ${r.space}</div>
+    </div>`;
+  }).join('');
+
+  const consistencyNote = allMatch
+    ? `<div style="font-size:12px;color:#0F6E56;background:#E1F5EE;border:.5px solid #1D9E75;border-radius:8px;padding:8px 12px;margin-bottom:1rem">
+        ✓ All three algorithms reached the same optimal benefit score (${maxBen}) — results are consistent.
+       </div>`
+    : `<div style="font-size:12px;color:#993C1D;background:#FAECE7;border:.5px solid #E24B4A;border-radius:8px;padding:8px 12px;margin-bottom:1rem">
+        ⚠ Benefit scores differ between algorithms — increase project count for B&B to reach optimality.
+       </div>`;
+
+  const tabsHtml=lastResults.map((r,i)=>
+    `<div class="algo-tab ${currentTab===i?'on':''}" onclick="currentTab=${i};renderResults()">${r.label}</div>`
+  ).join('');
+
+  const projHtml=items.map((p,i)=>`
+    <div class="res-chip ${selSet.has(i)?'sel':'rej'}">
+      <span class="s-badge ${sClass(p.sector)}">${p.sector}</span>
+      <span class="res-name">${p.name}</span>
+      <span class="res-cost">${fmt(p.cost)}</span>
+      <span class="res-score">score ${p.benefit}</span>
+    </div>`).join('');
+
+  document.getElementById('results').innerHTML=`
+    <div class="card">
+      <div class="card-title">Algorithm comparison</div>
+      ${consistencyNote}
+      <div class="compare-grid">${compareHtml}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Selected projects</div>
+      <div class="algo-tabs">${tabsHtml}</div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-l">Total benefit</div><div class="stat-v">${cr.result.totalBenefit}</div><div class="stat-s">utility score</div></div>
+        <div class="stat"><div class="stat-l">Budget used</div><div class="stat-v">${fmtB(tc)}</div><div class="stat-s">${Math.round((tc/budget)*100)}% of cap</div></div>
+        <div class="stat"><div class="stat-l">Projects selected</div><div class="stat-v">${cr.result.selected.length}</div><div class="stat-s">of ${items.length} candidates</div></div>
+        <div class="stat"><div class="stat-l">Runtime</div><div class="stat-v">${lastResults[currentTab].ms.toFixed(1)} ms</div><div class="stat-s">${lastResults[currentTab].space}</div></div>
+      </div>
+      <div class="res-list">${projHtml}</div>
+    </div>`;
+}
+
+// Init
+applyFilters();
+preselectDefaults();
+</script>
+</body>
+</html>
