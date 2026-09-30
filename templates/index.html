@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>LGU Budget Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+<!-- Ambient Background Vignette -->
+<div class="bg-vignette"></div>
+
+<!-- Global Top Navigation -->
+<nav class="top-nav">
+  <div class="nav-left">
+    <div class="nav-logo"></div>
+    <div class="nav-title" id="navTitle" style="display: none;">LGU BUDGET OPTIMIZER</div>
+  </div>
+  <div class="nav-right">
+    <a href="#" onclick="goHome(event)">HOME</a>
+    <a href="#" onclick="goAbout(event)">ABOUT</a>
+    <a href="#" onclick="goDevelopers(event)">DEVELOPERS</a>
+    <a href="#" onclick="goTool(event)">TOOL</a>
+  </div>
+</nav>
+
+<!-- Side Navigation Dots -->
+<div class="side-nav" id="sideNav">
+  <div class="side-dot active" data-target="home" onclick="goHome(event)"></div>
+  <div class="side-dot" data-target="about" onclick="goAbout(event)"></div>
+  <div class="side-dot" data-target="devs" onclick="goDevelopers(event)"></div>
+</div>
+
+<!-- Landing Page -->
+<div id="landing-container">
+  <section class="landing-top">
+    <div class="landing-title-group">
+      <div class="landing-title-solid">LGU BUDGET</div>
+      <div class="landing-title-outline">OPTIMIZER</div>
+    </div>
+    <p class="landing-sub">Smart allocation for optimal utility. Powered by a Hybrid Knapsack Algorithm<br>to navigate complex public funding constraints.</p>
+    <button class="landing-btn" onclick="startApp()">Get Started</button>
+  </section>
+
+  <section class="landing-middle">
+    <h2>ABOUT THE TOOL</h2>
+    <p class="landing-desc">
+      It is an experimental tool that uses a modified version of the solution to the Knapsack Problem.
+      The tool features a Hybrid Knapsack solution that uses Genetic Algorithm (GA) and Branch-and-Bound (B&amp;B)
+      to deliver optimized budgeting results.
+    </p>
+    
+    <p class="landing-compare-title">Additionally, the tool features a comparison of the following versions of the Knapsack Algorithm:</p>
+    
+    <div class="landing-cards">
+      <div class="landing-card card-left">
+        <h3>Knapsack Algorithm w Branch-<br>and-Bound</h3>
+        <p><i>Time: O(2^n) worst case<br>Space: O(2^n) worst case</i></p>
+      </div>
+      <div class="landing-card card-right">
+        <h3>Hybrid Knapsack<br>(GA + B&amp;B)</h3>
+        <p><i>Time: O(g·p·n + 2^n) worst case<br>Space: O(p·n + 2^n) worst case</i></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-bottom">
+    <h2>CONTACT US</h2>
+    <div class="landing-socials">
+      <a href="#" target="_blank" class="social-row">
+        <div class="social-icon">
+          <img src="{{ url_for('static', filename='assets/fb.png') }}" alt="Facebook">
+        </div>
+        <span>Facebook</span>
+      </a>
+      <a href="#" target="_blank" class="social-row">
+        <div class="social-icon">
+          <img src="{{ url_for('static', filename='assets/linkedin.png') }}" alt="LinkedIn">
+        </div>
+        <span>LinkedIn</span>
+      </a>
+      <div class="social-row" onclick="copyEmail()" style="cursor: pointer;">
+        <div class="social-icon">
+          <img src="{{ url_for('static', filename='assets/gmail.png') }}" alt="Email">
+        </div>
+        <span>Google Mail</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- App Container (Hidden initially) -->
+<div id="app-container" style="display: none;">
+<a class="skip" href="#setup">Skip to run setup</a>
+
+<div class="hero" style="display: none;">
+  <div class="hero-inner">
+    <div>
+      <h1 onclick="returnToLanding()" style="cursor: pointer;" title="Return to Home">LGU Budget Optimizer</h1>
+      <p class="hero-sub">Selects the combination of local government projects that maximises total social benefit
+      within a fixed budget, and measures how three knapsack algorithms perform on the same problem.</p>
+    </div>
+    <div class="hero-id">
+      <b>Thesis Group 2 — BSCS 4-1N</b>
+      Polytechnic University of the Philippines
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<div class="tabs-nav">
+  <div class="tabs-inner">
+    <button class="tab-link active" data-page="setup" onclick="switchPage('setup')">Setup Phase</button>
+    <div class="tab-divider">›</div>
+    <button class="tab-link" data-page="execution" onclick="switchPage('execution')">Execution & Results</button>
+    <div class="tab-divider">›</div>
+    <button class="tab-link" data-page="history" onclick="switchPage('history')">Reporting & History</button>
+    <span class="tab-sep">›</span>
+    <button class="tab-link" data-page="review" onclick="switchPage('review')">Verification &amp; Review</button>
+  </div>
+</div>
+
+
+  <div id="globalMsg" role="alert" aria-live="assertive"></div>
+
+  <div id="page-setup" class="page-view active">
+  <!-- STEP 1 ─ Dataset -->
+  <section class="step done" data-step="1" id="stepDataset">
+    <div class="step-hdr">
+      <span class="step-name">Choose a dataset</span>
+      <span class="step-note">Determines the problem size the algorithms are tested against</span>
+    </div>
+    <div class="ds-switcher">
+      <button class="ds-card active" id="btnPasig" onclick="switchDs('pasig')" aria-pressed="true">
+        <div class="ds-img">
+          <img src="{{ url_for('static', filename='assets/pasig.jpg') }}" alt="Pasig City">
+        </div>
+        <div class="ds-text">
+          <div class="ds-name">Pasig City</div>
+          <div class="ds-meta" id="pasigMeta">1,991 Projects</div>
+        </div>
+      </button>
+      <button class="ds-card" id="btnQC" onclick="switchDs('qc')" aria-pressed="false">
+        <div class="ds-img">
+          <img src="{{ url_for('static', filename='assets/qc.jpg') }}" alt="Quezon City">
+        </div>
+        <div class="ds-text">
+          <div class="ds-name">Quezon City</div>
+          <div class="ds-meta" id="qcMeta">26,865 Projects</div>
+        </div>
+      </button>
+    </div>
+    <div class="ds-infobar pasig" id="infoBar">
+      <span id="infoText"><b>Pasig City APP FY 2025 (General Fund)</b> — Source: City Government of Pasig, LGU Transparency Portal. Used as the <b>small dataset</b> to establish a standard of optimality and verify algorithm accuracy.</span>
+    </div>
+  </section>
+
+  <!-- STEP 2 ─ Budget -->
+  <section class="step done" data-step="2" id="stepBudget">
+    <div class="step-hdr">
+      <span class="step-name">Set the budget ceiling</span>
+      <span class="step-note">The knapsack capacity — shared across both datasets so results stay comparable</span>
+    </div>
+    <div class="card">
+      <div class="budget-block">
+        <label class="budget-label" for="budgetInput">Total project budget</label>
+        <div class="budget-slider-wrap">
+          <input type="range" id="budgetSlider" min="0" max="50000000000" step="100000000" value="5000000000"
+                 aria-label="Budget ceiling slider" oninput="updateBudget(this.value, 'slider')">
+        </div>
+        <div class="budget-input-wrap">
+          <span class="budget-peso">₱</span>
+          <input type="text" inputmode="numeric" id="budgetInput" value="5,000,000,000"
+                 oninput="updateBudget(this.value, 'input')"
+                 onblur="normalizeBudgetInput()"
+                 aria-label="Total project budget amount">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 ─ Projects -->
+  <section class="step" data-step="3" id="stepProjects">
+    <div class="step-hdr">
+      <span class="step-name">Select candidate projects</span>
+      <span class="step-note">These become the items the algorithms choose between</span>
+    </div>
+    <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">
+        Project pool
+        <span class="pool-meta"><span class="dot"></span><span id="poolLabel">Loading…</span></span>
+      </div>
+      <div class="card-meta"><span id="totalCount">0</span> projects &nbsp;·&nbsp; ₱<span id="totalBudgetLbl">0</span> total</div>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchBox" placeholder="Search projects or office…" oninput="filterProjects()">
+      </div>
+      <button class="filter-btn on" data-sector="All" onclick="setSector(this)">All</button>
+      <button class="filter-btn" data-sector="Healthcare" onclick="setSector(this)">Healthcare</button>
+      <button class="filter-btn" data-sector="Infrastructure" onclick="setSector(this)">Infrastructure</button>
+      <button class="filter-btn" data-sector="Education" onclick="setSector(this)">Education</button>
+      <button class="filter-btn" data-sector="Social Services" onclick="setSector(this)">Social Services</button>
+      <button class="filter-btn" data-sector="Environment" onclick="setSector(this)">Environment</button>
+      <button class="filter-btn" data-sector="Public Safety" onclick="setSector(this)">Public Safety</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px"><input type="checkbox" class="chk" id="chkAll" onchange="toggleAll(this.checked)"></th>
+            <th>Project / program</th>
+            <th>Sector</th>
+            <th>Office</th>
+            <th style="text-align:right">Cost (₱)</th>
+            <th style="text-align:center">Benefit</th>
+          </tr>
+        </thead>
+        <tbody id="projTbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <div class="page-info" id="pageInfo">Showing 0–0 of 0</div>
+      <div class="page-btns" id="pageBtns"></div>
+    </div>
+    <div class="sel-count">
+      <span class="sel-pill" id="selPill">0 selected</span>
+      <span id="selCost">₱0 total cost</span>
+    </div>
+    </div>
+  </section>
+
+  <div class="phase-nav">
+    <div class="phase-nav-hint" id="setupHint"></div>
+    <button class="phase-btn" id="toExecutionBtn" onclick="switchPage('execution')">
+      Continue to Execution &amp; Results <span class="phase-arrow">›</span>
+    </button>
+  </div>
+
+  </div>
+
+<div id="page-execution" class="page-view" style="display:none;">
+  <!-- STEP 4 ─ Run setup -->
+  <section class="step" data-step="4" id="setup">
+    <div class="step-hdr">
+      <span class="step-name">Configure the run</span>
+      <span class="step-note">Every run is recorded; the last 30 per dataset and algorithm are kept</span>
+    </div>
+    <div class="card">
+      <div class="setup-grid">
+        <div class="setup-field">
+          <div class="setup-lbl" id="algoLbl">Algorithms</div>
+          <div class="algo-select" id="algoSelect" role="group" aria-labelledby="algoLbl">
+            <!-- DP is a correctness baseline, not one of the two variations
+                 under study in SOP 3, so it is off by default. -->
+            <label class="algo-chk-label" id="lbl-dp">
+              <input type="checkbox" onchange="toggleAlgo('dp',this)"> Knapsack (DP)
+              <span class="algo-tag">baseline</span>
+            </label>
+            <label class="algo-chk-label checked" id="lbl-bnb">
+              <input type="checkbox" checked onchange="toggleAlgo('bnb',this)"> Knapsack + B&amp;B
+            </label>
+            <label class="algo-chk-label checked" id="lbl-ga">
+              <input type="checkbox" checked onchange="toggleAlgo('ga',this)"> Knapsack + B&amp;B + GA
+            </label>
+          </div>
+        </div>
+        <div class="setup-field">
+          <label class="setup-lbl" for="trialsInput">Independent runs per algorithm</label>
+          <div class="trials-row">
+            <input type="number" id="trialsInput" class="trials-input" min="1" max="30" value="1"
+                   oninput="updateActionBar()">
+            <div class="trials-presets">
+              <button class="tpreset" onclick="setTrials(1)">1</button>
+              <button class="tpreset" onclick="setTrials(10)">10</button>
+              <button class="tpreset" onclick="setTrials(30)">30</button>
+            </div>
+          </div>
+          <div class="setup-hint">The study specifies 30 independent runs per algorithm, per dataset.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 ─ Results -->
+  <section class="step" data-step="5" id="stepResults">
+    <div class="step-hdr">
+      <span class="step-name">Compare the results</span>
+      <span class="step-note">Optimality measures for each algorithm on this problem</span>
+    </div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel" role="status" aria-live="polite">Initialising…</div>
+    </div>
+    <div id="results">
+      <div class="card">
+        <div class="empty-state">
+          <p>No results yet.</p>
+          <p class="es-sub">Choose your projects and algorithms, then run. Each algorithm's runtime,
+          execution time and pruning rate will be compared here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="phase-nav">
+    <button class="phase-btn back" onclick="switchPage('setup')">
+      <span class="phase-arrow">‹</span> Back to Setup
+    </button>
+    <div class="phase-nav-hint" id="execHint"></div>
+    <button class="phase-btn" id="toHistoryBtn" onclick="switchPage('history')">
+      Continue to Reporting &amp; History <span class="phase-arrow">›</span>
+    </button>
+  </div>
+
+  </div>
+
+<div id="page-history" class="page-view" style="display:none;">
+  <!-- STEP 6 ─ History -->
+  <section class="step" data-step="6" id="stepHistory">
+    <div class="step-hdr">
+      <span class="step-name">Review and export run history</span>
+      <span class="step-note">Held in memory only — export before closing the tool</span>
+    </div>
+    <div id="historyPanel"></div>
+  </section>
+
+  <!-- STEP 7 ─ Statistical report -->
+  <section class="step" data-step="7" id="stepStats">
+    <div class="step-hdr">
+      <span class="step-name">Statistical report</span>
+      <span class="step-note">Efficiency ratios and t-tests over the recorded runs</span>
+    </div>
+    <div id="statsPanel"></div>
+  </section>
+
+  <div class="phase-nav">
+    <button class="phase-btn back" onclick="switchPage('execution')">
+      <span class="phase-arrow">‹</span> Back to Execution &amp; Results
+    </button>
+    <div class="phase-nav-hint"></div>
+    <button class="phase-btn" onclick="switchPage('review')">
+      Continue to Verification &amp; Review <span class="phase-arrow">›</span>
+    </button>
+  </div>
+
+  </div>
+
+<div id="page-review" class="page-view" style="display:none;">
+  <!-- STEP 8 ─ Post-allocation verification and comparative review -->
+  <section class="step" data-step="8" id="stepReview">
+    <div class="step-hdr">
+      <span class="step-name">Post-allocation verification</span>
+      <span class="step-note">Automated integrity checks over every funded project, and sector alignment against the published plan</span>
+    </div>
+    <div id="verifyPanel"></div>
+  </section>
+
+  <section class="step" data-step="9" id="stepFunded">
+    <div class="step-hdr">
+      <span class="step-name">Funded projects</span>
+      <span class="step-note">The complete allocation for each city — the same list the export contains</span>
+    </div>
+    <div id="fundedPanel"></div>
+  </section>
+
+  <section class="step" data-step="10" id="stepCompare">
+    <div class="step-hdr">
+      <span class="step-name">Comparative review</span>
+      <span class="step-note">How the allocation behaves when scaling from the small to the large dataset</span>
+    </div>
+    <div id="comparePanel"></div>
+  </section>
+
+  <div class="phase-nav">
+    <button class="phase-btn back" onclick="switchPage('history')">
+      <span class="phase-arrow">‹</span> Back to Reporting &amp; History
+    </button>
+  </div>
+
+  </div>
+
+<div class="footer" id="footerTxt" style="display:none;">
+    Pasig City Annual Procurement Plan FY 2025 (General Fund).
+    Algorithms: dynamic programming; branch and bound (Land &amp; Doig, 1960);
+    genetic algorithm (Holland's schema theorem).
+  </div>
+</div>
+
+<!-- Persistent status + primary action -->
+<div class="actionbar" style="display:none;">
+  <div class="actionbar-inner">
+    <div class="ab-facts">
+      <div class="ab-fact"><span class="ab-fact-l">Dataset</span><span class="ab-fact-v" id="abDs">Pasig</span></div>
+      <div class="ab-fact"><span class="ab-fact-l">Budget</span><span class="ab-fact-v" id="abBudget">₱5.0B</span></div>
+      <div class="ab-fact"><span class="ab-fact-l">Projects selected</span><span class="ab-fact-v" id="abSel">0</span></div>
+      <div class="ab-fact"><span class="ab-fact-l">Algorithms</span><span class="ab-fact-v" id="abAlgos">3</span></div>
+      <div class="ab-fact"><span class="ab-fact-l">Runs each</span><span class="ab-fact-v" id="abTrials">1</span></div>
+    </div>
+    <button class="ab-run" id="runBtn" onclick="runAlgos()">Run algorithms</button>
+    <div class="ab-reason" id="abReason"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- Email Copy Toast -->
+<div id="emailToast" style="display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #04292E; color: #E5F4F5; padding: 15px 30px; border-radius: 99px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; font-family: 'Work Sans', sans-serif; font-weight: 600;">
+  hybridknapsack@gmail.com copied to clipboard!
+</div>
+
+<!-- Clear History Custom Modal -->
+<div id="clearHistoryModal" class="custom-modal" style="display: none;">
+  <div class="custom-modal-content">
+    <h3>Clear History</h3>
+    <p>Clear all recorded runs? This cannot be undone &mdash; export first if you still need the data.</p>
+    <div class="custom-modal-actions">
+      <button class="modal-btn-cancel" onclick="closeClearHistoryModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmClearHistory()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Global Footer -->
+<footer class="global-footer">
+  <div class="footer-left">Group 2 | BSCS 4-1N</div>
+  <div class="footer-right">Polytechnic University of the Philippines</div>
+</footer>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>
